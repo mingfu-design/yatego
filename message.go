@@ -24,35 +24,35 @@ const (
 	TypeSetLocal     = "setlocal"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const letterBytes = "123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 //A Message is Yate message
 type Message struct {
-	Type    string
-	Name    string
-	RetVal  string
-	ID      string
-	Params  map[string]string
-	Handled bool
-	Origin  int64
+	Type      string
+	Name      string
+	RetVal    string
+	ID        string
+	Params    map[string]string
+	Processed bool
+	Time      int64
 }
 
 //NewMessageRetVal creates new outgoing message
 func NewMessageRetVal(name string, retVal string, id string, msgType string) *Message {
 	if id == "" {
-		id = randString(15)
+		id = randString(10)
 	}
 	if msgType == "" {
 		msgType = TypeOutgoing
 	}
 	return &Message{
-		Type:    msgType,
-		Name:    name,
-		RetVal:  retVal,
-		ID:      id,
-		Handled: false,
-		Origin:  time.Now().Unix(),
-		Params:  make(map[string]string),
+		Type:      msgType,
+		Name:      name,
+		RetVal:    retVal,
+		ID:        id,
+		Processed: false,
+		Time:      time.Now().Unix(),
+		Params:    make(map[string]string),
 	}
 }
 
@@ -83,12 +83,14 @@ func (m *Message) encodeParams() string {
 func (m *Message) Encode() string {
 	result := ""
 	switch m.Type {
+	//dispatch message
 	case TypeOutgoing:
 		result = fmt.Sprintf("%%%%>message:%s:%d:%s:%s",
-			esc(m.ID), m.Origin, esc(m.Name), esc(m.RetVal)) + m.encodeParams()
+			esc(m.ID), m.Time, esc(m.Name), esc(m.RetVal)) + m.encodeParams()
+		//acknowledge message
 	case TypeIncoming:
 		result = fmt.Sprintf("%%%%<message:%s:%s:%s:%s",
-			esc(m.ID), esc(bool2str(m.Handled)), esc(m.Name), esc(m.RetVal)) + m.encodeParams()
+			esc(m.ID), esc(bool2str(m.Processed)), esc(m.Name), esc(m.RetVal)) + m.encodeParams()
 	}
 	return result
 }
@@ -102,12 +104,12 @@ func DecodeMessage(s string) (*Message, error) {
 		m = NewMessageRetVal(unesc(parts[3]), unesc(parts[4]), unesc(parts[1]), TypeIncoming)
 		ts, err := strconv.ParseInt(parts[2], 10, 64)
 		if err == nil {
-			m.Origin = ts
+			m.Time = ts
 		}
 		m.decodeParams(parts[5:])
 	case "%%<message":
 		m = NewMessageRetVal(unesc(parts[3]), unesc(parts[4]), unesc(parts[1]), TypeAnswer)
-		m.Handled = str2bool(parts[2])
+		m.Processed = str2bool(parts[2])
 		m.decodeParams(parts[5:])
 	case "%%<install":
 		m = decodeMessageNoParams(TypeInstalled, parts)
@@ -121,7 +123,7 @@ func DecodeMessage(s string) (*Message, error) {
 		m = decodeMessageNoID(TypeConnected, parts)
 	case "%%<setlocal":
 		m = NewMessageRetVal(unesc(parts[1]), unesc(parts[2]), "", TypeSetLocal)
-		m.Handled = str2bool(parts[3])
+		m.Processed = str2bool(parts[3])
 	}
 
 	return m, nil
@@ -129,13 +131,13 @@ func DecodeMessage(s string) (*Message, error) {
 
 func decodeMessageNoParams(messageType string, parts []string) *Message {
 	m := NewMessageRetVal(unesc(parts[2]), "", unesc(parts[1]), messageType)
-	m.Handled = str2bool(parts[2])
+	m.Processed = str2bool(parts[2])
 	return m
 }
 
 func decodeMessageNoID(messageType string, parts []string) *Message {
 	m := NewMessageRetVal(unesc(parts[1]), "", "", messageType)
-	m.Handled = str2bool(parts[2])
+	m.Processed = str2bool(parts[2])
 	return m
 }
 

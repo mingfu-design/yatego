@@ -5,9 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
-	"strconv"
-	"time"
 )
 
 //Engine is communication object with Yate server
@@ -33,7 +30,7 @@ func (engine *Engine) Dispatch(m *Message) (int, error) {
 //Acknowledge message to yate engine
 func (engine *Engine) Acknowledge(m *Message) (int, error) {
 	if m.Type != TypeIncoming {
-		return 0, errors.New("cannot dispatch non incoming message type")
+		return 0, errors.New("cannot acknowledge non incoming message type")
 	}
 	s := m.Encode()
 	m.Type = TypeAcknowledged
@@ -112,8 +109,7 @@ func (engine *Engine) Debug(s string) (int, error) {
 
 //NewCallID returns new random call id string
 func NewCallID() string {
-	rand.Seed(time.Now().UnixNano())
-	return strconv.Itoa(int(rand.Uint32()))
+	return randString(10)
 }
 
 func (engine *Engine) print(str string) (int, error) {

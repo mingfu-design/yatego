@@ -17,20 +17,22 @@ Then you need to have a route to it, eg:
 ```
 
 ```golang
-package yatego
+package main
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/rukavina/yatego"
 )
 
 var (
-	engine                                         Engine
-	caller, called, billID, partyCallID, ourCallID string
+	engine                                        yatego.Engine
+	caller, called, billID, peerCallID, ourCallID string
 )
 
 func main() {
-	engine = Engine{
+	engine = yatego.Engine{
 		In:        os.Stdin,
 		Out:       os.Stdout,
 		Err:       os.Stderr,
@@ -46,21 +48,29 @@ func main() {
 			break
 		}
 		engine.Log("new message: " + fmt.Sprintf("%+v\n", m))
-		if m.Type == TypeIncoming && m.Name == "call.execute" {
-			go callExecute(m)
+		if m.Type == yatego.TypeIncoming && m.Name == "call.execute" {
+			initCallParams(m)
+			callExecute(m)
+		}
+		//we need to ack all incoming messages
+		if m.Type == yatego.TypeIncoming {
+			engine.Acknowledge(m)
 		}
 	}
 }
 
+func initCallParams(m *yatego.Message) {
+	ourCallID = "yatego/" + yatego.NewCallID()
 
-func callExecute(m *Message) {
-	m.Handled = true
-	partyCallID = m.Params["id"]
+	peerCallID = m.Params["id"]
 	billID = m.Params["billid"]
-	ourCallID = NewCallID()
-	m.Params["targetid"] = ourCallID
 	caller = m.Params["caller"]
 	called = m.Params["called"]
+}
+
+func callExecute(m *yatego.Message) {
+	m.Processed = true
+	m.Params["targetid"] = peerCallID
 	_, err := engine.Acknowledge(m)
 	if err != nil {
 		engine.Log("acknowledge error: " + err.Error())
@@ -68,7 +78,7 @@ func callExecute(m *Message) {
 		engine.Log("acknowledge msg: " + fmt.Sprintf("%+v\n", m))
 	}
 
-	msgAnswer := NewMessage("call.answered", map[string]string{"id": ourCallID, "targetid": partyCallID})
+	msgAnswer := yatego.NewMessage("call.answered", map[string]string{"id": ourCallID, "targetid": peerCallID})
 	_, err = engine.Dispatch(msgAnswer)
 	if err != nil {
 		engine.Log("dispatched err: " + err.Error())
@@ -76,7 +86,7 @@ func callExecute(m *Message) {
 		engine.Log("dispatched msg: " + fmt.Sprintf("%+v\n", msgAnswer))
 	}
 
-	msgAttach := NewMessage("chan.attach", map[string]string{"source": "tone/congestion", "notify": ourCallID})
+	msgAttach := yatego.NewMessage("chan.attach", map[string]string{"source": "tone/congestion", "notify": ourCallID})
 	_, err = engine.Dispatch(msgAttach)
 	if err != nil {
 		engine.Log("dispatched err: " + err.Error())
@@ -84,4 +94,5 @@ func callExecute(m *Message) {
 		engine.Log("dispatched msg: " + fmt.Sprintf("%+v\n", msgAttach))
 	}
 }
+
 ```
