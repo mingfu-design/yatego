@@ -74,7 +74,7 @@ func (m *Message) encodeParams() string {
 		return result
 	}
 	for k, v := range m.Params {
-		result += ":" + k + "=" + esc(v)
+		result += ":" + esc(k) + "=" + esc(v)
 	}
 	return result
 }
