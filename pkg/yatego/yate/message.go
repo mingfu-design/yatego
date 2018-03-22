@@ -1,4 +1,4 @@
-package yatego
+package yate
 
 import (
 	"fmt"
