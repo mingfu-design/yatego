@@ -5,6 +5,7 @@ type CallflowComponent struct {
 	Name      string
 	ClassName string
 	Config    map[string]interface{}
+	Factory   ComponentFactory
 }
 
 // Callflow is the definition of a IVR callflow and components def. repos

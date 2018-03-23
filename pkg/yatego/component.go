@@ -22,3 +22,6 @@ type Component interface {
 	Config(key string) map[string]string
 	Logger() Logger
 }
+
+// ComponentFactory is a factory method type to build a component
+type ComponentFactory func(class string, name string, config map[string]interface{}) Component

@@ -12,7 +12,7 @@ type Call struct {
 	BillingID           string
 	ActiveComponentName string
 	data                map[string]map[string]interface{}
-	components          []*Component
+	components          []Component
 }
 
 // Data returns the component's data. If key is present, returns data subkey
@@ -42,14 +42,14 @@ func (call *Call) SetData(componentName string, key string, value interface{}) {
 }
 
 // Components returns all components define
-func (call *Call) Components() []*Component {
+func (call *Call) Components() []Component {
 	return call.components
 }
 
 // Component return named or first component if name is ""
-func (call *Call) Component(name string) *Component {
+func (call *Call) Component(name string) Component {
 	for _, component := range call.components {
-		if name == "" || (*component).Name() == name {
+		if name == "" || component.Name() == name {
 			return component
 		}
 	}
@@ -57,7 +57,7 @@ func (call *Call) Component(name string) *Component {
 }
 
 // AddComponent appends new component
-func (call *Call) AddComponent(component *Component) {
+func (call *Call) AddComponent(component Component) {
 	call.components = append(call.components, component)
 }
 
@@ -84,7 +84,7 @@ func (cm *CallManager) Remove(channelID string) {
 
 // Add new Call to be tracked
 func (cm *CallManager) Add(
-	components []*Component,
+	components []Component,
 	params map[string]string,
 	channelID string,
 	activeComponentName string) (*Call, error) {
