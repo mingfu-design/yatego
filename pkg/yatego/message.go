@@ -1,4 +1,4 @@
-package yate
+package yatego
 
 import (
 	"fmt"
@@ -40,7 +40,7 @@ type Message struct {
 //NewMessageRetVal creates new outgoing message
 func NewMessageRetVal(name string, retVal string, id string, msgType string) *Message {
 	if id == "" {
-		id = randString(10)
+		id = RandString(10)
 	}
 	if msgType == "" {
 		msgType = TypeOutgoing
@@ -151,7 +151,7 @@ func (m *Message) decodeParams(parts []string) {
 	}
 }
 
-func randString(n int) string {
+func RandString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]

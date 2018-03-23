@@ -1,4 +1,4 @@
-package yate
+package yatego
 
 import (
 	"bufio"
@@ -9,12 +9,11 @@ import (
 
 //Engine is communication object with Yate server
 type Engine struct {
-	In        io.Reader
-	Out       io.Writer
-	Err       io.Writer
-	scanner   *bufio.Scanner
-	LogPrefix string
-	DebugOn   bool
+	In      io.Reader
+	Out     io.Writer
+	Err     io.Writer
+	scanner *bufio.Scanner
+	logger  Logger
 }
 
 //Dispatch message to yate engine
@@ -50,7 +49,7 @@ func (engine *Engine) GetEvent() (*Message, error) {
 	if s == "" {
 		return nil, nil
 	}
-	engine.Debug("<<< received raw message [" + s + "]")
+	engine.logger.Debug("<<< received raw message [" + s + "]")
 	return DecodeMessage(s)
 }
 
@@ -94,25 +93,12 @@ func (engine *Engine) SetLocal(name, value string) {
 	go engine.print(msg)
 }
 
-//Log to yate output
-func (engine *Engine) Log(s string) (int, error) {
-	return fmt.Fprintln(engine.Err, engine.LogPrefix+s)
-}
-
-//Debug logs if DebugOn is true
-func (engine *Engine) Debug(s string) (int, error) {
-	if !engine.DebugOn {
-		return 0, nil
-	}
-	return engine.Log(s)
-}
-
 //NewCallID returns new random call id string
 func NewCallID() string {
-	return randString(10)
+	return RandString(10)
 }
 
 func (engine *Engine) print(str string) (int, error) {
-	engine.Debug(">>> sending message [" + str + "]")
+	engine.logger.Debug(">>> sending message [" + str + "]")
 	return fmt.Fprintln(engine.Out, str)
 }
