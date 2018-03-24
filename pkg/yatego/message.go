@@ -22,9 +22,64 @@ const (
 	TypeUnwatched    = "unwatched"
 	TypeConnected    = "connected"
 	TypeSetLocal     = "setlocal"
-)
 
-const letterBytes = "123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	MsgEngineStart   = "engine.start"
+	MsgEngineStop    = "engine.stop"
+	MsgEngineHalt    = "engine.halt"
+	MsgEngineInit    = "engine.init"
+	MsgEngineBusy    = "engine.busy"
+	MsgEngineHhelp   = "engine.help"
+	MsgEngineCommand = "engine.command"
+	MsgEngineStatus  = "engine.status"
+	MsgEngineTimer   = "engine.timer"
+	MsgEngineCipher  = "engine.cipher"
+
+	MsgModuleUpdate = "module.update"
+
+	MsgChanAttach       = "chan.attach"
+	MsgChanConnect      = "chan.connected"
+	MsgChanDisconnected = "chan.disconnected"
+	MsgChanDtmf         = "chan.dtmf"
+	MsgChanHangup       = "chan.hangup"
+	MsgChanMasquerade   = "chan.masquerade"
+	MsgChanNotify       = "chan.notify"
+	MsgChanRecord       = "chan.record"
+	MsgChanRtp          = "chan.rtp"
+	MsgChanStartup      = "chan.startup"
+	MsgChanText         = "chan.text"
+	MsgChanLocate       = "chan.locate"
+	MsgChanControl      = "chan.control"
+	MsgChanReplaced     = "chan.replaced"
+	MsgChanTransfer     = "chan.transfer"
+	MsgChanOperation    = "chan.operation"
+
+	MsgCallAnswered   = "call.answered"
+	MsgCallCdr        = "call.cdr"
+	MsgCallDrop       = "call.drop"
+	MsgCallExecute    = "call.execute"
+	MsgCallProgress   = "call.progress"
+	MsgCallRinging    = "call.ringing"
+	MsgCallRoute      = "call.route"
+	MsgCallPreroute   = "call.preroute"
+	MsgCallUpdate     = "call.update"
+	MsgCallConference = "call.conference"
+
+	MsgUserAuth       = "user.auth"
+	MsgUserAccount    = "user.account"
+	MsgUserLogin      = "user.login"
+	MsgUserNotify     = "user.notify"
+	MsgUserRegister   = "user.register"
+	MsgUserUnregister = "user.unregister"
+	MsgUserRoster     = "user.roster"
+	MsgUserUpdate     = "user.update"
+
+	MsgComponentEnter = "component.enter"
+
+	ReasonChanNotifEOF    = "eof"
+	ReasonChanNotifMaxlen = "maxlen"
+
+	letterBytes = "123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+)
 
 //A Message is Yate message
 type Message struct {
@@ -151,6 +206,7 @@ func (m *Message) decodeParams(parts []string) {
 	}
 }
 
+// RandString generate random string of length n
 func RandString(n int) string {
 	b := make([]byte, n)
 	for i := range b {

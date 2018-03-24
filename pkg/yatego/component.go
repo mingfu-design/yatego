@@ -7,12 +7,27 @@ type InstallDef struct {
 	FilterValue string
 }
 
+// Consts for results of callback
+const (
+	ResTransfer = "transfer"
+	ResStop     = "stop"
+	ResStay     = "stay"
+	ResEnter    = "enter"
+)
+
+// CallbackResult holds return result from callback func
+type CallbackResult struct {
+	result            string
+	transferComponent string
+	data              map[string]interface{}
+}
+
 // Callback is the type of msg handler function
-type Callback func(call Call, message Message)
+type Callback func(call *Call, message *Message) *CallbackResult
 
 // Component is the contract for a object to be a component
 type Component interface {
-	Enter(call Call)
+	Enter(call *Call)
 	Name() string
 	MessagesToWatch() []string
 	MessagesToInstall() map[string]InstallDef
