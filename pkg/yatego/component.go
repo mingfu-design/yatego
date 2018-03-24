@@ -19,7 +19,14 @@ const (
 type CallbackResult struct {
 	result            string
 	transferComponent string
-	data              map[string]interface{}
+}
+
+// NewCallbackResult generate CB result
+func NewCallbackResult(result string, transferComponent string) *CallbackResult {
+	return &CallbackResult{
+		result:            result,
+		transferComponent: transferComponent,
+	}
 }
 
 // Callback is the type of msg handler function
