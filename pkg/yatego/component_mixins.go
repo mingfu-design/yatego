@@ -90,7 +90,10 @@ func (c *componentYate) Answer(call *Call, msg *Message) (*Message, error) {
 	msg.Processed = true
 
 	_, err := c.engine.Acknowledge(msg)
-	return msg, err
+	if err != nil {
+		return msg, err
+	}
+	return c.SendMessage(MsgCallAnswered, call, map[string]string{"cdrcreate": "no"}, "")
 }
 
 func (c *componentYate) MessagesToWatch() []string {

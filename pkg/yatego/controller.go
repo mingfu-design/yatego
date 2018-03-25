@@ -2,14 +2,14 @@ package yatego
 
 // Controller main bot object
 type Controller struct {
-	callManager          CallManager
+	callManager          *CallManager
 	fallbackToController bool
 	singleChannelMode    bool
 	flowID               string
 	staticComponents     []Component
 	callflowLoader       CallflowLoader
 	logger               Logger
-	engine               Engine
+	engine               *Engine
 }
 
 // Run the IVR system, main loop
@@ -44,6 +44,11 @@ func (c *Controller) Run(name string) {
 			break
 		}
 	}
+}
+
+//Logger get logger
+func (c *Controller) Logger() Logger {
+	return c.logger
 }
 
 func (c *Controller) getCall(msg *Message) (*Call, bool) {
@@ -217,6 +222,7 @@ func (c *Controller) loadComponents(params map[string]string) []Component {
 	return coms
 }
 
-func (c *Controller) addStaticComponent(component Component) {
+// AddStaticComponent add a component to the controller
+func (c *Controller) AddStaticComponent(component Component) {
 	c.staticComponents = append(c.staticComponents, component)
 }

@@ -11,9 +11,8 @@ import (
 type Engine struct {
 	In      io.Reader
 	Out     io.Writer
-	Err     io.Writer
 	scanner *bufio.Scanner
-	logger  Logger
+	Logger  Logger
 }
 
 //Dispatch message to yate engine
@@ -49,7 +48,7 @@ func (engine *Engine) GetEvent() (*Message, error) {
 	if s == "" {
 		return nil, nil
 	}
-	engine.logger.Debug("<<< received raw message [" + s + "]")
+	engine.Logger.Debug("<<< received raw message [" + s + "]")
 	return DecodeMessage(s)
 }
 
@@ -99,6 +98,6 @@ func NewCallID() string {
 }
 
 func (engine *Engine) print(str string) (int, error) {
-	engine.logger.Debug(">>> sending message [" + str + "]")
+	engine.Logger.Debug(">>> sending message [" + str + "]")
 	return fmt.Fprintln(engine.Out, str)
 }

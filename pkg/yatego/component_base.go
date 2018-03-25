@@ -8,6 +8,7 @@ type Base struct {
 	componentMedia
 }
 
+// pseudo 2nd step constructor
 func (b *Base) init() {
 	b.Listen(MsgCallExecute, func(call *Call, message *Message) *CallbackResult {
 		b.logger.Infof("Component [%s] going to answer the call from [%s] to [%s]", b.name, call.Caller, call.Called)
@@ -18,14 +19,15 @@ func (b *Base) init() {
 
 // hook method
 func (b *Base) initListeners() {
-	b.Listen(MsgCallExecute, func(call *Call, message *Message) *CallbackResult {
+	b.Listen(MsgCallExecute, func(call *Call, msg *Message) *CallbackResult {
 		b.logger.Infof("Component [%s] going to answer the call from [%s] to [%s]", b.name, call.Caller, call.Called)
+		b.Answer(call, msg)
 		return NewCallbackResult(ResEnter, "")
 	})
 }
 
-// NewComponent generates new base component
-func NewComponent(name string, engine *Engine, logger Logger, config map[string]interface{}) *Base {
+// NewBaseComponent generates new base component
+func NewBaseComponent(name string, engine *Engine, logger Logger, config map[string]interface{}) *Base {
 	common := componentCommon{
 		name:   name,
 		logger: logger,

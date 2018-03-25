@@ -41,7 +41,7 @@ type Component interface {
 	Callback(messageName string) Callback
 	Listen(messageName string, callback Callback)
 	OnEnter(callback Callback)
-	Config(key string) map[string]string
+	Config(key string) (interface{}, bool)
 	Logger() Logger
 }
 
