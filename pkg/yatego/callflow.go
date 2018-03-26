@@ -27,3 +27,10 @@ type CallflowLoaderStatic struct {
 func (cl *CallflowLoaderStatic) Load(params map[string]string) *Callflow {
 	return cl.callflow
 }
+
+// NewCallflowLoaderStatic generates new CallflowLoaderStatic
+func NewCallflowLoaderStatic(c *Callflow) *CallflowLoaderStatic {
+	return &CallflowLoaderStatic{
+		callflow: c,
+	}
+}

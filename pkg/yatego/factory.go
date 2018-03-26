@@ -23,8 +23,12 @@ func (f *Factory) Container() minidic.Container {
 }
 
 // Controller get controller service instance
-func (f *Factory) Controller() *Controller {
-	return f.Container().Get("controller").(*Controller)
+func (f *Factory) Controller(cl CallflowLoader) *Controller {
+	c := f.Container().Get("controller").(*Controller)
+	if cl != nil {
+		c.callflowLoader = cl
+	}
+	return c
 }
 
 // BaseComponent generates base component

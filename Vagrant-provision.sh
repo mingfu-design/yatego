@@ -53,6 +53,7 @@ ldconfig
 mkdir /var/log/yate
 
 ln -s /vagrant/cmd/inline/inline /opt/yate/share/yate/scripts/yatego-inline
+ln -s /vagrant/cmd/callfow-static/callfow-static /opt/yate/share/yate/scripts/callfow-static
 
 echo "Yate config"
 
@@ -61,6 +62,7 @@ rsync -avz /vagrant/deployments/vagrant/configs/yate/ /opt/yate/
 printf "\n[41587000201]\npassword=milan" >> /opt/yate/etc/yate/regfile.conf
 
 printf "\n^900$=tone/congestion\n^920$=external/nodata/yatego-inline" >> /opt/yate/etc/yate/regexroute.conf
+printf "\n^921$=external/nodata/callfow-static" >> /opt/yate/etc/yate/regexroute.conf
 
 
 

@@ -4,7 +4,7 @@ import "github.com/rukavina/yatego/pkg/yatego"
 
 func main() {
 	f := yatego.NewFactory()
-	c := f.Controller()
+	c := f.Controller(nil)
 	c.Logger().Debug("Starting yatego IVR [inline]")
 
 	com := f.BaseComponent()
