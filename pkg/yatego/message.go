@@ -150,7 +150,7 @@ func (m *Message) Encode() string {
 	return result
 }
 
-//DecodeMessage returns a message from received yate string
+// DecodeMessage returns a message from received yate string
 func DecodeMessage(s string) (*Message, error) {
 	var m *Message
 	parts := strings.Split(s, ":")

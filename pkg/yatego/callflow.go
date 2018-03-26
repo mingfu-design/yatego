@@ -12,3 +12,17 @@ type CallflowComponent struct {
 type Callflow struct {
 	Components []*CallflowComponent
 }
+
+// CallflowLoader interface which defines object to be able to load new callflow
+type CallflowLoader interface {
+	Load(params map[string]string) *Callflow
+}
+
+// CallflowLoaderStatic is simplest CallflowLoader implementation
+type CallflowLoaderStatic struct {
+	callflow *Callflow
+}
+
+func (cl *CallflowLoaderStatic) Load(params map[string]string) *Callflow {
+	return cl.callflow
+}

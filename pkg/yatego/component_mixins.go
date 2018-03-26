@@ -26,6 +26,14 @@ func (c *componentCommon) TransferComponent() (string, bool) {
 	return com.(string), true
 }
 
+func (c *componentCommon) TransferCallbackResult() *CallbackResult {
+	trCom, exists := c.TransferComponent()
+	if !exists {
+		return NewCallbackResult(ResStop, "")
+	}
+	return NewCallbackResult(ResTransfer, trCom)
+}
+
 func (c *componentCommon) Logger() Logger {
 	return c.logger
 }

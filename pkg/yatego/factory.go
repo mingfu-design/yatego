@@ -32,10 +32,3 @@ func (f *Factory) BaseComponent() Component {
 	fac := BaseComponentFactory(f.Container())
 	return fac("", "start", map[string]interface{}{})
 }
-
-// BaseComponentFactory is base component factory
-func BaseComponentFactory(c minidic.Container) ComponentFactory {
-	return func(class string, name string, config map[string]interface{}) Component {
-		return NewBaseComponent(name, c.Get("engine").(*Engine), c.Get("logger").(Logger), config)
-	}
-}

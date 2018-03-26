@@ -213,7 +213,7 @@ func (c *Controller) loadComponents(params map[string]string) []Component {
 	if c.callflowLoader == nil {
 		return c.staticComponents
 	}
-	cf := c.callflowLoader.load(params)
+	cf := c.callflowLoader.Load(params)
 	coms := make([]Component, 0)
 	//build components
 	for _, com := range cf.Components {

@@ -10,8 +10,9 @@ type Base struct {
 
 // pseudo 2nd step constructor
 func (b *Base) init() {
-	b.Listen(MsgCallExecute, func(call *Call, message *Message) *CallbackResult {
+	b.Listen(MsgCallExecute, func(call *Call, msg *Message) *CallbackResult {
 		b.logger.Infof("Component [%s] going to answer the call from [%s] to [%s]", b.name, call.Caller, call.Called)
+		b.Answer(call, msg)
 		return NewCallbackResult(ResEnter, "")
 	})
 	b.initListeners()
@@ -19,11 +20,7 @@ func (b *Base) init() {
 
 // hook method
 func (b *Base) initListeners() {
-	b.Listen(MsgCallExecute, func(call *Call, msg *Message) *CallbackResult {
-		b.logger.Infof("Component [%s] going to answer the call from [%s] to [%s]", b.name, call.Caller, call.Called)
-		b.Answer(call, msg)
-		return NewCallbackResult(ResEnter, "")
-	})
+
 }
 
 // NewBaseComponent generates new base component
