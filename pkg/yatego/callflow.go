@@ -23,6 +23,7 @@ type CallflowLoaderStatic struct {
 	callflow *Callflow
 }
 
+// Load callflow
 func (cl *CallflowLoaderStatic) Load(params map[string]string) *Callflow {
 	return cl.callflow
 }
