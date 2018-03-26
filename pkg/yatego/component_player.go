@@ -10,13 +10,16 @@ type Player struct {
 	Base
 }
 
-// hook method
-func (p *Player) initListeners() {
+// Init pseudo constructor
+func (p *Player) Init() {
+	p.Base.Init()
+	p.logger.Debugf("Player [%s] init", p.Name())
 	//install chan.notify to get prompt eof
 	p.messagesToInstall[MsgChanNotify] = InstallDef{Priority: 100}
 
 	//on enter play song
 	p.OnEnter(func(call *Call, msg *Message) *CallbackResult {
+		p.logger.Debugf("Player [%s] on enter", p.Name())
 		return p.callbackResult(call)
 	})
 

@@ -9,8 +9,10 @@ type Menu struct {
 	Base
 }
 
-// hook method
-func (m *Menu) initListeners() {
+// Init pseudo constructor
+func (m *Menu) Init() {
+	m.Base.Init()
+	m.logger.Debugf("Menu [%s] init", m.Name())
 	//install chan.dtml to listen clicks
 	m.messagesToInstall[MsgChanDtmf] = InstallDef{Priority: 100}
 

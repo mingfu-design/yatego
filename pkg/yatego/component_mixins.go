@@ -65,12 +65,13 @@ func (c *componentCallback) OnEnter(cb Callback) {
 	c.callbacks[MsgComponentEnter] = cb
 }
 
-func (c *componentCallback) Enter(call *Call) {
+func (c *componentCallback) Enter(call *Call) bool {
 	cb := c.Callback(MsgComponentEnter)
 	if cb == nil {
-		return
+		return false
 	}
 	cb(call, nil)
+	return true
 }
 
 type componentYate struct {

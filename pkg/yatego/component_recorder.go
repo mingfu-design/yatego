@@ -16,8 +16,10 @@ type Recorder struct {
 	status string
 }
 
-// hook method
-func (r *Recorder) initListeners() {
+// Init pseudo constructor
+func (r *Recorder) Init() {
+	r.Base.Init()
+	r.logger.Debugf("Recorder [%s] init", r.Name())
 	r.status = stPrompt
 	//install chan.notify to get prompt eof
 	r.messagesToInstall[MsgChanNotify] = InstallDef{Priority: 100}

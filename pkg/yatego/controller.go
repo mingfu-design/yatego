@@ -165,7 +165,9 @@ func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
 			return false
 		}
 		c.logger.Infof("Entering component [%s] after callback in call [%s]", com.Name(), call.ChannelID)
-		com.Enter(call)
+		if !com.Enter(call) {
+			c.logger.Infof("Component [%s] Enter callback not defined in call [%s]", com.Name(), call.ChannelID)
+		}
 		return true
 	default:
 		return true
@@ -174,8 +176,10 @@ func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
 
 func (c *Controller) installMessageHandlers(call *Call) {
 	msgs := make(map[string]InstallDef)
-	for _, com := range call.Components() {
+	coms := call.Components()
+	for _, com := range coms {
 		for msgName, msgDef := range com.MessagesToInstall() {
+			c.logger.Debugf("Analysing msf [%s]: %+v", msgName, msgDef)
 			if _, exists := msgs[msgName]; !exists {
 				msgs[msgName] = msgDef
 				continue
@@ -187,7 +191,7 @@ func (c *Controller) installMessageHandlers(call *Call) {
 			msgs[msgName] = msgDef
 		}
 	}
-	c.logger.Debugf("Going to install [%d] message handlers", len(msgs))
+	c.logger.Debugf("Going to install [%d] message handlers, from [%d] components", len(msgs), len(coms))
 	for msgName, msgDef := range msgs {
 		c.engine.InstallFiltered(msgName, msgDef.Priority, msgDef.FilterName, msgDef.FilterValue)
 	}
@@ -195,7 +199,8 @@ func (c *Controller) installMessageHandlers(call *Call) {
 
 func (c *Controller) installMessageWatches(call *Call) {
 	msgs := make(map[string]bool)
-	for _, com := range call.Components() {
+	coms := call.Components()
+	for _, com := range coms {
 		for _, msgName := range com.MessagesToWatch() {
 			if _, exists := msgs[msgName]; exists {
 				continue
@@ -203,7 +208,7 @@ func (c *Controller) installMessageWatches(call *Call) {
 			msgs[msgName] = true
 		}
 	}
-	c.logger.Debugf("Going to install [%d] message watchers", len(msgs))
+	c.logger.Debugf("Going to install [%d] message watchers, from [%d] components", len(msgs), len(coms))
 	for msgName := range msgs {
 		c.engine.Watch(msgName)
 	}
@@ -217,6 +222,7 @@ func (c *Controller) loadComponents(params map[string]string) []Component {
 	coms := make([]Component, 0)
 	//build components
 	for _, com := range cf.Components {
+		c.logger.Debugf("Building component: %+v", com)
 		coms = append(coms, com.Factory(com.ClassName, com.Name, com.Config))
 	}
 	return coms
