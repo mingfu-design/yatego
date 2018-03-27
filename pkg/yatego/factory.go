@@ -36,3 +36,8 @@ func (f *Factory) BaseComponent() Component {
 	fac := BaseComponentFactory(f.Container())
 	return fac("", "start", map[string]interface{}{})
 }
+
+// CallflowLoaderJSON get json loader instance
+func (f *Factory) CallflowLoaderJSON() *CallflowLoaderJSON {
+	return f.Container().Get("loader_json").(*CallflowLoaderJSON)
+}

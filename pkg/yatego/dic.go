@@ -66,5 +66,9 @@ func dic() minidic.Container {
 		}
 	}))
 
+	c.Add(minidic.NewInjection("loader_json", func(cont minidic.Container) *CallflowLoaderJSON {
+		return NewCallflowLoaderJSON("", cont.Get("component_factories").(map[string]ComponentFactory))
+	}))
+
 	return c
 }

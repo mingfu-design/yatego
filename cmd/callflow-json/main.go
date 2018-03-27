@@ -11,7 +11,7 @@ func main() {
 	f := yatego.NewFactory()
 
 	//json loader
-	l := yatego.NewCallflowLoaderJSON("", f.Container().Get("component_factories").(map[string]yatego.ComponentFactory))
+	l := f.CallflowLoaderJSON()
 	//load json content from external file
 	exec, _ := os.Executable()
 	dir := filepath.Dir(exec)
