@@ -16,9 +16,18 @@ type Recorder struct {
 	status string
 }
 
+// NewRecorderComponent generates new Recorder component
+func NewRecorderComponent(base Base) *Recorder {
+	r := &Recorder{
+		status: stPrompt,
+		Base:   base,
+	}
+	r.Init()
+	return r
+}
+
 // Init pseudo constructor
 func (r *Recorder) Init() {
-	r.Base.Init()
 	r.logger.Debugf("Recorder [%s] init", r.Name())
 	r.status = stPrompt
 	//install chan.notify to get prompt eof
@@ -66,10 +75,9 @@ func (r *Recorder) PlayPrompt(call *Call) bool {
 
 // RecordFile record a voicemail
 func (r *Recorder) RecordFile(call *Call) bool {
-	maxlen, exists := r.Config("maxlen")
+	maxlen, exists := r.ConfigAsString("maxlen")
 	if !exists {
 		maxlen = "80000"
-	} else {
 	}
 	f := r.recordFilePath(call)
 	if f == "" {
@@ -78,7 +86,7 @@ func (r *Recorder) RecordFile(call *Call) bool {
 	r.logger.Debugf("Recording voicemail [%s] in [%s]", f, r.Name())
 	r.status = stRecord
 	r.SetCallData(call, "recorded", f)
-	r.Record(f, maxlen.(string), call, map[string]string{})
+	r.Record(f, maxlen, call, map[string]string{})
 	return true
 }
 

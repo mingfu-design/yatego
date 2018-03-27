@@ -9,9 +9,17 @@ type Menu struct {
 	Base
 }
 
+// NewMenuComponent generates new Menu component
+func NewMenuComponent(base Base) *Menu {
+	m := &Menu{
+		Base: base,
+	}
+	m.Init()
+	return m
+}
+
 // Init pseudo constructor
 func (m *Menu) Init() {
-	m.Base.Init()
 	m.logger.Debugf("Menu [%s] init", m.Name())
 	//install chan.dtml to listen clicks
 	m.messagesToInstall[MsgChanDtmf] = InstallDef{Priority: 100}

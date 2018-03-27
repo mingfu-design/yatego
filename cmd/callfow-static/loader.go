@@ -9,10 +9,11 @@ import (
 )
 
 func loader(c minidic.Container) yatego.CallflowLoader {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	ex, err := os.Executable()
 	if err != nil {
-		return nil
+		panic(err)
 	}
+	dir := filepath.Dir(ex)
 
 	return yatego.NewCallflowLoaderStatic(&yatego.Callflow{
 		Components: []*yatego.CallflowComponent{
@@ -21,7 +22,7 @@ func loader(c minidic.Container) yatego.CallflowLoader {
 				Name:      "start",
 				ClassName: "player",
 				Config: map[string]interface{}{
-					"playlist": dir + "/../../assets/audio/welcome.sln",
+					"playlist": dir + "/assets/audio/welcome.sln",
 					"transfer": "menu",
 				},
 				Factory: yatego.PlayerComponentFactory(c),
@@ -41,7 +42,7 @@ func loader(c minidic.Container) yatego.CallflowLoader {
 				Name:      "playlist1",
 				ClassName: "player",
 				Config: map[string]interface{}{
-					"playlist": dir + "/../../assets/audio/clicked_1.sln",
+					"playlist": dir + "/assets/audio/clicked_1.sln",
 					"transfer": "goodbye",
 				},
 				Factory: yatego.PlayerComponentFactory(c),
@@ -51,7 +52,7 @@ func loader(c minidic.Container) yatego.CallflowLoader {
 				Name:      "playlist2",
 				ClassName: "player",
 				Config: map[string]interface{}{
-					"playlist": dir + "/../../assets/audio/clicked_2.sln",
+					"playlist": dir + "/assets/audio/clicked_2.sln",
 					"transfer": "goodbye",
 				},
 				Factory: yatego.PlayerComponentFactory(c),
@@ -61,7 +62,7 @@ func loader(c minidic.Container) yatego.CallflowLoader {
 				Name:      "recorder",
 				ClassName: "recorder",
 				Config: map[string]interface{}{
-					"file":     dir + "/../../assets/voicemail/{called}_{caller}_{billingId}.sln",
+					"file":     dir + "/assets/voicemail/{called}_{caller}_{billingId}.sln",
 					"maxlen":   80000,
 					"transfer": "goodbye",
 				},
@@ -72,7 +73,7 @@ func loader(c minidic.Container) yatego.CallflowLoader {
 				Name:      "goodbye",
 				ClassName: "player",
 				Config: map[string]interface{}{
-					"playlist": dir + "/../../assets/audio/goodbye.sln",
+					"playlist": dir + "/assets/audio/goodbye.sln",
 				},
 				Factory: yatego.PlayerComponentFactory(c),
 			},

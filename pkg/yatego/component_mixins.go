@@ -1,5 +1,9 @@
 package yatego
 
+import (
+	"strconv"
+)
+
 type componentCommon struct {
 	name   string
 	config map[string]interface{}
@@ -16,6 +20,25 @@ func (c *componentCommon) Config(key string) (interface{}, bool) {
 	}
 	val, exists := c.config[key]
 	return val, exists
+}
+
+func (c *componentCommon) ConfigAsString(key string) (string, bool) {
+	val, exists := c.Config(key)
+	if !exists {
+		return "", false
+	}
+	switch t := val.(type) {
+	default:
+		return "", false
+	case bool:
+		return strconv.FormatBool(t), true
+	case int:
+		return strconv.Itoa(t), true
+	case uint64:
+		return strconv.FormatUint(t, 10), true
+	case float64:
+		return strconv.FormatFloat(t, 'f', 6, 64), true
+	}
 }
 
 func (c *componentCommon) TransferComponent() (string, bool) {

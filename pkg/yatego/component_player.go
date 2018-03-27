@@ -10,9 +10,18 @@ type Player struct {
 	Base
 }
 
+// NewPlayerComponent generates new player component
+func NewPlayerComponent(base Base) *Player {
+	p := &Player{
+		currSong: 0,
+		Base:     base,
+	}
+	p.Init()
+	return p
+}
+
 // Init pseudo constructor
 func (p *Player) Init() {
-	p.Base.Init()
 	p.logger.Debugf("Player [%s] init", p.Name())
 	//install chan.notify to get prompt eof
 	p.messagesToInstall[MsgChanNotify] = InstallDef{Priority: 100}

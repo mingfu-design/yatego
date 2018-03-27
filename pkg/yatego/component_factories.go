@@ -6,7 +6,6 @@ import "github.com/rukavina/minidic"
 func BaseComponentFactory(c minidic.Container) ComponentFactory {
 	return func(class string, name string, config map[string]interface{}) Component {
 		com := baseComponent(c, name, config)
-		com.Init()
 		return &com
 	}
 }
@@ -14,35 +13,21 @@ func BaseComponentFactory(c minidic.Container) ComponentFactory {
 // PlayerComponentFactory is Player component factory
 func PlayerComponentFactory(c minidic.Container) ComponentFactory {
 	return func(class string, name string, config map[string]interface{}) Component {
-		com := Player{
-			currSong: 0,
-			Base:     baseComponent(c, name, config),
-		}
-		com.Init()
-		return &com
+		return NewPlayerComponent(baseComponent(c, name, config))
 	}
 }
 
 // RecorderComponentFactory is Recorder component factory
 func RecorderComponentFactory(c minidic.Container) ComponentFactory {
 	return func(class string, name string, config map[string]interface{}) Component {
-		com := Recorder{
-			status: stPrompt,
-			Base:   baseComponent(c, name, config),
-		}
-		com.Init()
-		return &com
+		return NewRecorderComponent(baseComponent(c, name, config))
 	}
 }
 
 // MenuComponentFactory is Menu component factory
 func MenuComponentFactory(c minidic.Container) ComponentFactory {
 	return func(class string, name string, config map[string]interface{}) Component {
-		com := Menu{
-			Base: baseComponent(c, name, config),
-		}
-		com.Init()
-		return &com
+		return NewMenuComponent(baseComponent(c, name, config))
 	}
 }
 

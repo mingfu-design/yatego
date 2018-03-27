@@ -42,5 +42,6 @@ func NewBaseComponent(name string, engine *Engine, logger Logger, config map[str
 		yate,
 		media,
 	}
+	com.Init()
 	return com
 }
