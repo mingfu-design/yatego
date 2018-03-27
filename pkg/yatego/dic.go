@@ -14,7 +14,10 @@ func dic() minidic.Container {
 	// classname => factory map
 	c.Add(minidic.NewInjection("component_factories", func(cont minidic.Container) map[string]ComponentFactory {
 		return map[string]ComponentFactory{
-			"base": BaseComponentFactory(cont),
+			"base":     BaseComponentFactory(cont),
+			"player":   PlayerComponentFactory(cont),
+			"recorder": RecorderComponentFactory(cont),
+			"menu":     MenuComponentFactory(cont),
 		}
 	}))
 

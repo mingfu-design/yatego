@@ -218,7 +218,10 @@ func (c *Controller) loadComponents(params map[string]string) []Component {
 	if c.callflowLoader == nil {
 		return c.staticComponents
 	}
-	cf := c.callflowLoader.Load(params)
+	cf, err := c.callflowLoader.Load(params)
+	if err != nil {
+		c.logger.Fatalf("Error loading callflow: %s", err)
+	}
 	coms := make([]Component, 0)
 	//build components
 	for _, com := range cf.Components {

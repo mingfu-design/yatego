@@ -1,0 +1,52 @@
+{
+    "components":[
+        {
+            "name": "start",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/welcome.sln",
+                "transfer": "menu"
+            }
+        },
+        {
+            "name": "menu",
+            "class": "menu",
+            "config": {
+                "keys": "1,2,3",
+                "transfer": "playlist1,playlist2,recorder"
+            } 
+        },
+        {
+            "name": "playlist1",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/clicked_1.sln",
+                "transfer": "goodbye"
+            }
+        }, 
+        {
+            "name": "playlist2",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/clicked_2.sln",
+                "transfer": "goodbye"
+            }
+        },
+        {
+            "name": "recorder",
+            "class": "recorder",
+            "config": {
+                "file": "/vagrant/assets/voicemail/{called}_{caller}_{billingId}.sln",
+                "maxlen": "80000",
+                "transfer": "goodbye"
+            }
+        },
+        {
+            "name": "goodbye",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/goodbye.sln"
+            }
+        }                                       
+    ]
+}

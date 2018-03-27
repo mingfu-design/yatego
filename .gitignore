@@ -1,3 +1,4 @@
-cmd/inline/inline
-cmd/callfow-static/callfow-static
 .vagrant
+cmd/inline/inline
+cmd/callflow-static/callflow-static
+cmd/callflow-json/callflow-json

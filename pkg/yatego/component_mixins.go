@@ -29,7 +29,10 @@ func (c *componentCommon) ConfigAsString(key string) (string, bool) {
 	}
 	switch t := val.(type) {
 	default:
+		c.logger.Errorf("Unable to convert component [%s] config key [%s] val : %+v to string", c.Name(), key, val)
 		return "", false
+	case string:
+		return t, true
 	case bool:
 		return strconv.FormatBool(t), true
 	case int:
