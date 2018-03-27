@@ -5,7 +5,7 @@ YateGo packes enables communication with YATE core via external protocol http://
 
 `go get github.com/rukavina/yatego`
 
-## Sample IVR
+## Simple IVR
 
 this simple IVR just answers and plays `tone/congestion`
 
@@ -13,86 +13,317 @@ In order to install it as regalar callflow/ivr in yate, compile, place binary in
 Then you need to have a route to it, eg:
 
 ```sh
-^555$=external/nodata/yourbinary
+^920$=external/nodata/yourbinary
 ```
 
 ```golang
 package main
 
-import (
-	"fmt"
-	"os"
+import "github.com/rukavina/yatego/pkg/yatego"
 
-	"github.com/rukavina/yatego"
+func main() {
+	f := yatego.NewFactory()
+	c := f.Controller(nil)
+	c.Logger().Debug("Starting yatego IVR [inline]")
+
+	com := f.BaseComponent()
+	com.OnEnter(func(call *yatego.Call, message *yatego.Message) *yatego.CallbackResult {
+		com.(*yatego.Base).PlayTone("congestion", call, map[string]string{})
+		return yatego.NewCallbackResult(yatego.ResStay, "")
+	})
+
+	c.AddStaticComponent(com)
+	c.Run("")
+}
+```
+
+## Callflow IVR (static)
+
+The callflow definition allows more cleaner and structural setup of your IVRs. IVRs based on callflows are defined as the system of components.
+There are different ways to load a callflow, simplest one is by using `CallflowLoaderStatic`
+
+```golang
+package main
+
+import "github.com/rukavina/yatego/pkg/yatego"
+
+func main() {
+	f := yatego.NewFactory()
+	c := f.Controller(nil)
+	c.Logger().Debug("Starting yatego IVR [inline]")
+
+	com := f.BaseComponent()
+	com.OnEnter(func(call *yatego.Call, message *yatego.Message) *yatego.CallbackResult {
+		com.(*yatego.Base).PlayTone("congestion", call, map[string]string{})
+		return yatego.NewCallbackResult(yatego.ResStay, "")
+	})
+
+	c.AddStaticComponent(com)
+	c.Run("")
+}
+```
+
+loader.go:
+
+```golang
+package main
+
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/rukavina/minidic"
+	"github.com/rukavina/yatego/pkg/yatego"
 )
 
-var (
-	engine                                        yatego.Engine
-	caller, called, billID, peerCallID, ourCallID string
+func loader(c minidic.Container) yatego.CallflowLoader {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	dir := filepath.Dir(ex)
+
+	return yatego.NewCallflowLoaderStatic(&yatego.Callflow{
+		Components: []*yatego.CallflowComponent{
+			//player start
+			&yatego.CallflowComponent{
+				Name:      "start",
+				ClassName: "player",
+				Config: map[string]interface{}{
+					"playlist": dir + "/assets/audio/welcome.sln",
+					"transfer": "menu",
+				},
+				Factory: yatego.PlayerComponentFactory(c),
+			},
+			//menu
+			&yatego.CallflowComponent{
+				Name:      "menu",
+				ClassName: "menu",
+				Config: map[string]interface{}{
+					"keys":     "1,2,3",
+					"transfer": "playlist1,playlist2,recorder",
+				},
+				Factory: yatego.MenuComponentFactory(c),
+			},
+			//playlist1
+			&yatego.CallflowComponent{
+				Name:      "playlist1",
+				ClassName: "player",
+				Config: map[string]interface{}{
+					"playlist": dir + "/assets/audio/clicked_1.sln",
+					"transfer": "goodbye",
+				},
+				Factory: yatego.PlayerComponentFactory(c),
+			},
+			//playlist2
+			&yatego.CallflowComponent{
+				Name:      "playlist2",
+				ClassName: "player",
+				Config: map[string]interface{}{
+					"playlist": dir + "/assets/audio/clicked_2.sln",
+					"transfer": "goodbye",
+				},
+				Factory: yatego.PlayerComponentFactory(c),
+			},
+			//recorder
+			&yatego.CallflowComponent{
+				Name:      "recorder",
+				ClassName: "recorder",
+				Config: map[string]interface{}{
+					"file":     dir + "/assets/voicemail/{called}_{caller}_{billingId}.sln",
+					"maxlen":   80000,
+					"transfer": "goodbye",
+				},
+				Factory: yatego.RecorderComponentFactory(c),
+			},
+			//player goodbye
+			&yatego.CallflowComponent{
+				Name:      "goodbye",
+				ClassName: "player",
+				Config: map[string]interface{}{
+					"playlist": dir + "/assets/audio/goodbye.sln",
+				},
+				Factory: yatego.PlayerComponentFactory(c),
+			},
+		},
+	})
+}
+```
+
+## Callflow IVR (json)
+
+More callflow flexibility you gain by using `CallflowLoaderJSON` which allows to define you callflow in an external json file
+
+```golang
+package main
+
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/rukavina/yatego/pkg/yatego"
 )
 
 func main() {
-	engine = yatego.Engine{
-		In:        os.Stdin,
-		Out:       os.Stdout,
-		Err:       os.Stderr,
-		DebugOn:   true,
-		LogPrefix: "[GoYate Test] ",
-	}
+	f := yatego.NewFactory()
 
-	engine.Log("start")
-	engine.Install("chan.notify", 20)
-	for {
-		m, err := engine.GetEvent()
-		if err != nil || m == nil {
-			break
-		}
-		engine.Log("new message: " + fmt.Sprintf("%+v\n", m))
-		if m.Type == yatego.TypeIncoming && m.Name == "call.execute" {
-			initCallParams(m)
-			callExecute(m)
-		}
-		//we need to ack all incoming messages
-		if m.Type == yatego.TypeIncoming {
-			engine.Acknowledge(m)
-		}
-	}
+	//json loader
+	l := f.CallflowLoaderJSON()
+	//load json content from external file
+	exec, _ := os.Executable()
+	dir := filepath.Dir(exec)
+	l.SetJSONFile(dir + "/assets/configs/callflow_static.json")
+
+	//controller
+	c := f.Controller(l)
+	c.Logger().Debug("Starting yatego IVR [callflow-json]")
+	c.Run("")
 }
+```
+## Callflow IVR (vars)
 
-func initCallParams(m *yatego.Message) {
-	ourCallID = "yatego/" + yatego.NewCallID()
+The next level of flexibility is achieved by using json file as callflow template, which means that it can contain variables instead of hard-coded values for component configuration. At the runtime, it's possible to obtain values to be used to parse template variables
 
-	peerCallID = m.Params["id"]
-	billID = m.Params["billid"]
-	caller = m.Params["caller"]
-	called = m.Params["called"]
+```golang
+package main
+
+import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	"github.com/rukavina/yatego/pkg/yatego"
+)
+
+func main() {
+	//get current dir
+	exec, _ := os.Executable()
+	dir := filepath.Dir(exec)
+
+	f := yatego.NewFactory()
+	//json loader
+	l := f.CallflowLoaderJSON()
+	//custom onload, pull vars from json
+	l.OnLoad = func(loader *yatego.CallflowLoaderJSON, cf *yatego.Callflow, params map[string]string) error {
+		//load vars from json
+		data, err := ioutil.ReadFile(dir + "/assets/configs/callflow_vars.json")
+		if err != nil {
+			return err
+		}
+		var vars map[string]string
+		if err := json.Unmarshal(data, &vars); err != nil {
+			return err
+		}
+		loader.SetVars(vars)
+		return nil
+	}
+	//load json CF template from external file
+	l.SetJSONFile(dir + "/assets/configs/callflow_tpl.json")
+
+	//controller
+	c := f.Controller(l)
+	c.Logger().Debug("Starting yatego IVR [callflow-vars]")
+	c.Run("")
 }
+```
 
-func callExecute(m *yatego.Message) {
-	m.Processed = true
-	m.Params["targetid"] = peerCallID
-	_, err := engine.Acknowledge(m)
-	if err != nil {
-		engine.Log("acknowledge error: " + err.Error())
-	} else {
-		engine.Log("acknowledge msg: " + fmt.Sprintf("%+v\n", m))
-	}
+template json file:
 
-	msgAnswer := yatego.NewMessage("call.answered", map[string]string{"id": ourCallID, "targetid": peerCallID})
-	_, err = engine.Dispatch(msgAnswer)
-	if err != nil {
-		engine.Log("dispatched err: " + err.Error())
-	} else {
-		engine.Log("dispatched msg: " + fmt.Sprintf("%+v\n", msgAnswer))
-	}
-
-	msgAttach := yatego.NewMessage("chan.attach", map[string]string{"source": "tone/congestion", "notify": ourCallID})
-	_, err = engine.Dispatch(msgAttach)
-	if err != nil {
-		engine.Log("dispatched err: " + err.Error())
-	} else {
-		engine.Log("dispatched msg: " + fmt.Sprintf("%+v\n", msgAttach))
-	}
+```json
+{
+    "components":[
+        {
+            "name": "start",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/{prompt_file}",
+                "transfer": "menu"
+            }
+        },
+        {
+            "name": "menu",
+            "class": "menu",
+            "config": {
+                "keys": "1,2,3",
+                "transfer": "playlist1,playlist2,recorder"
+            } 
+        },
+        {
+            "name": "playlist1",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/clicked_1.sln",
+                "transfer": "goodbye"
+            }
+        }, 
+        {
+            "name": "playlist2",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/clicked_2.sln",
+                "transfer": "goodbye"
+            }
+        },
+        {
+            "name": "recorder",
+            "class": "recorder",
+            "config": {
+                "file": "/vagrant/assets/voicemail/{called}_{caller}_{billingId}.sln",
+                "maxlen": "{rec_maxlen}",
+                "transfer": "goodbye"
+            }
+        },
+        {
+            "name": "goodbye",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/goodbye.sln"
+            }
+        }                                       
+    ]
 }
+```
 
+values :
+
+```json
+{
+    "prompt_file":  "welcome.sln",
+    "rec_maxlen":   "160000" 
+}
+```
+
+## Running examples in vagrant
+
+* First build all `cmd` executables with `go build` in each subfolder
+* From project's root folder run `vagrant up`
+* connect sip softphone (eg. zoiper) to sip account `41587000201@172.28.128.3`, pass: `milan`
+* call example destinations: `920`, `921`, `922`, `923`
+
+## Yate management
+
+SSH to vagrant:
+
+```sh
+vagrant ssh
+sudo -i
+```
+
+Log:
+
+```sh
+tail -f /var/log/yate/messages
+```
+
+Stop:
+
+```sh
+pkill yate
+```
+
+Start:
+
+```sh
+/opt/yate/startyate.sh
 ```
