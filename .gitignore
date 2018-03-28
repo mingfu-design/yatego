@@ -1,4 +1,5 @@
 .vagrant
+vendor
 cmd/inline/inline
 cmd/callflow-static/callflow-static
 cmd/callflow-json/callflow-json

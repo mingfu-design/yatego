@@ -1,0 +1,17 @@
+hash: 746af3e508437b17771489c909ab2b8092c9d32556d737335a774b660355b33e
+updated: 2018-03-28T15:21:16.724455249+02:00
+imports:
+- name: github.com/rukavina/minidic
+  version: 91302b37f38ec0757b60623ed33fa228d6353f3e
+- name: github.com/sirupsen/logrus
+  version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
+- name: golang.org/x/crypto
+  version: 88942b9c40a4c9d203b82b3731787b672d6e809b
+  subpackages:
+  - ssh/terminal
+- name: golang.org/x/sys
+  version: 13d03a9a82fba647c21a0ef8fba44a795d0f0835
+  subpackages:
+  - unix
+  - windows
+testImports: []

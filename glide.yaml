@@ -1,0 +1,5 @@
+package: github.com/rukavina/yatego
+import:
+- package: github.com/rukavina/minidic
+- package: github.com/sirupsen/logrus
+  version: ^1.0.5
