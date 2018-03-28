@@ -36,18 +36,17 @@ func (engine *Engine) Acknowledge(m *Message) (int, error) {
 }
 
 //GetEvent gets new event message from stdin
+// EOF is when: `message == nil` and `err == nil`
 func (engine *Engine) GetEvent() (*Message, error) {
 	if engine.scanner == nil {
 		engine.scanner = bufio.NewScanner(engine.In)
 	}
 	res := engine.scanner.Scan()
 	if !res {
+		//case EOF both are nil
 		return nil, engine.scanner.Err()
 	}
 	s := engine.scanner.Text()
-	if s == "" {
-		return nil, nil
-	}
 	engine.Logger.Debug("<<< received raw message [" + s + "]")
 	return DecodeMessage(s)
 }

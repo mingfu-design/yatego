@@ -16,9 +16,33 @@ type Controller struct {
 func (c *Controller) Run(name string) {
 	for {
 		msg, err := c.engine.GetEvent()
-		if c.singleChannelMode && (err != nil || msg == nil) {
+		if err != nil {
 			c.logger.Fatalf("event msg err: %s", err)
-			break
+			if c.singleChannelMode {
+				break
+			} else {
+				continue
+			}
+		}
+		if msg == nil {
+			if err == nil {
+				c.logger.Warningln("event msg EOF")
+			} else {
+				c.logger.Fatal("event msg is nil")
+			}
+			if c.singleChannelMode {
+				break
+			} else {
+				continue
+			}
+		}
+		if msg == nil {
+			c.logger.Fatal("event msg is nil")
+			if c.singleChannelMode {
+				break
+			} else {
+				continue
+			}
 		}
 		c.logger.Debugf("new msg: %+v", msg)
 		call, processed := c.getCall(msg)

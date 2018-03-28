@@ -3,3 +3,4 @@ cmd/inline/inline
 cmd/callflow-static/callflow-static
 cmd/callflow-json/callflow-json
 cmd/callflow-vars/callflow-vars
+pkg/yatego/debug.test
