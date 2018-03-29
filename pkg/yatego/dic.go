@@ -18,6 +18,7 @@ func dic() minidic.Container {
 			"player":   PlayerComponentFactory(cont),
 			"recorder": RecorderComponentFactory(cont),
 			"menu":     MenuComponentFactory(cont),
+			"fetcher":  FetcherComponentFactory(cont),
 		}
 	}))
 
@@ -58,6 +59,14 @@ func dic() minidic.Container {
 
 	c.Add(minidic.NewInjection("controller", func(cont minidic.Container) *Controller {
 		return &Controller{
+			componentYate: componentYate{
+				componentCommon: componentCommon{
+					name:   "controller",
+					logger: cont.Get("logger").(Logger),
+					config: map[string]interface{}{},
+				},
+				engine: cont.Get("engine").(*Engine),
+			},
 			callManager:       cont.Get("call_manager").(*CallManager),
 			logger:            cont.Get("logger").(Logger),
 			engine:            cont.Get("engine").(*Engine),

@@ -35,7 +35,7 @@ type Callback func(call *Call, message *Message) *CallbackResult
 // Component is the contract for a object to be a component
 type Component interface {
 	Init()
-	Enter(call *Call) bool
+	Enter(call *Call) *CallbackResult
 	Name() string
 	MessagesToWatch() []string
 	MessagesToInstall() map[string]InstallDef

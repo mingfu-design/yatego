@@ -91,16 +91,16 @@ func (c *componentCallback) OnEnter(cb Callback) {
 	c.callbacks[MsgComponentEnter] = cb
 }
 
-func (c *componentCallback) Enter(call *Call) bool {
+func (c *componentCallback) Enter(call *Call) *CallbackResult {
 	cb := c.Callback(MsgComponentEnter)
 	if cb == nil {
-		return false
+		return NewCallbackResult(ResStay, "")
 	}
-	cb(call, nil)
-	return true
+	return cb(call, nil)
 }
 
 type componentYate struct {
+	componentCommon
 	engine            *Engine
 	messagesToWatch   []string
 	messagesToInstall map[string]InstallDef
@@ -137,6 +137,46 @@ func (c *componentYate) MessagesToWatch() []string {
 
 func (c *componentYate) MessagesToInstall() map[string]InstallDef {
 	return c.messagesToInstall
+}
+
+func (c *componentYate) InstallMessageHandlers(call *Call) {
+	msgs := make(map[string]InstallDef)
+	coms := call.Components()
+	for _, com := range coms {
+		for msgName, msgDef := range com.MessagesToInstall() {
+			c.logger.Debugf("Analysing msf [%s]: %+v", msgName, msgDef)
+			if _, exists := msgs[msgName]; !exists {
+				msgs[msgName] = msgDef
+				continue
+			}
+			if msgs[msgName].Priority < msgDef.Priority {
+				continue
+			}
+			delete(msgs, msgName)
+			msgs[msgName] = msgDef
+		}
+	}
+	c.logger.Debugf("Going to install [%d] message handlers, from [%d] components", len(msgs), len(coms))
+	for msgName, msgDef := range msgs {
+		c.engine.InstallFiltered(msgName, msgDef.Priority, msgDef.FilterName, msgDef.FilterValue)
+	}
+}
+
+func (c *componentYate) InstallMessageWatches(call *Call) {
+	msgs := make(map[string]bool)
+	coms := call.Components()
+	for _, com := range coms {
+		for _, msgName := range com.MessagesToWatch() {
+			if _, exists := msgs[msgName]; exists {
+				continue
+			}
+			msgs[msgName] = true
+		}
+	}
+	c.logger.Debugf("Going to install [%d] message watchers, from [%d] components", len(msgs), len(coms))
+	for msgName := range msgs {
+		c.engine.Watch(msgName)
+	}
 }
 
 type componentMedia struct {

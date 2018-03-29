@@ -56,6 +56,7 @@ ln -s /vagrant/cmd/inline/inline /opt/yate/share/yate/scripts/yatego-inline
 ln -s /vagrant/cmd/callflow-static/callflow-static /opt/yate/share/yate/scripts/yatego-callflow-static
 ln -s /vagrant/cmd/callflow-json/callflow-json /opt/yate/share/yate/scripts/yatego-callflow-json
 ln -s /vagrant/cmd/callflow-vars/callflow-vars /opt/yate/share/yate/scripts/yatego-callflow-vars
+ln -s /vagrant/cmd/callflow-dynamic/callflow-dynamic /opt/yate/share/yate/scripts/yatego-callflow-dynamic
 
 echo "Yate config"
 
@@ -67,6 +68,7 @@ printf "\n^900$=tone/congestion\n^920$=external/nodata/yatego-inline" >> /opt/ya
 printf "\n^921$=external/nodata/yatego-callflow-static" >> /opt/yate/etc/yate/regexroute.conf
 printf "\n^922$=external/nodata/yatego-callflow-json" >> /opt/yate/etc/yate/regexroute.conf
 printf "\n^923$=external/nodata/yatego-callflow-vars" >> /opt/yate/etc/yate/regexroute.conf
+printf "\n^924$=external/nodata/yatego-callflow-dynamic" >> /opt/yate/etc/yate/regexroute.conf
 
 
 

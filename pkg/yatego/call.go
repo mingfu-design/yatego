@@ -61,6 +61,24 @@ func (call *Call) AddComponent(component Component) {
 	call.components = append(call.components, component)
 }
 
+// ActivateComponent transfer to new active component
+func (call *Call) ActivateComponent(newComponent string) bool {
+	next := call.Component(newComponent)
+	if next == nil {
+		return false
+	}
+	call.ActiveComponentName = next.Name()
+	return true
+}
+
+// ActiveComponent returns active compoment in the call
+func (call *Call) ActiveComponent() Component {
+	if call.ActiveComponentName == "" {
+		return nil
+	}
+	return call.Component(call.ActiveComponentName)
+}
+
 // CallManager is the repository for calls
 type CallManager struct {
 	calls map[string]*Call

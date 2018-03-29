@@ -30,6 +30,7 @@ func NewBaseComponent(name string, engine *Engine, logger Logger, config map[str
 	}
 	yate := componentYate{
 		engine:            engine,
+		componentCommon:   common,
 		messagesToInstall: make(map[string]InstallDef),
 		messagesToWatch:   make([]string, 0),
 	}

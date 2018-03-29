@@ -294,6 +294,80 @@ values :
 }
 ```
 
+## Callflow IVR (dynamic)
+
+The most flexible callflow you can get by using component `fetcher`. It has config `url`. When fetcher enters execution it will make http POST request to defined url and expects json result. The json response should be new callflow. New components are generated and appended to the existing call components. The execution is trasfered to the very next component among new ones.
+
+Your http server/handler receives the following as a form's post data:
+
+```
+ID=1522323299-11
+called=924
+caller=41587000201
+```
+
+Thus you can generate json callflow to return dynamically based on provided params.
+
+```golang
+package main
+
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/rukavina/yatego/pkg/yatego"
+)
+
+func main() {
+	f := yatego.NewFactory()
+
+	//json loader
+	l := f.CallflowLoaderJSON()
+	//load json content from external file
+	exec, _ := os.Executable()
+	dir := filepath.Dir(exec)
+	l.SetJSONFile(dir + "/assets/configs/callflow_dynamic.json")
+
+	//controller
+	c := f.Controller(l)
+	c.Logger().Debug("Starting yatego IVR [callflow-dynamic]")
+	c.Run("")
+}
+```
+
+demo url handler:
+
+```golang
+package main
+
+import (
+	"log"
+	"net/http"
+)
+
+func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			log.Printf("error parsing form: %s", err)
+		} else {
+			log.Println("Provided values on request:")
+			for key := range r.PostForm {
+				log.Printf("\"%s\":\"%s\"", key, r.PostFormValue(key))
+			}
+		}
+		http.ServeFile(w, r, "assets/configs/callflow_static.json")
+	})
+
+	log.Println("HTTP server up and running on port 9000 and serving file [assets/configs/callflow_static.json]")
+
+	err := http.ListenAndServe(":9000", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+```
+
 ## Running examples in vagrant
 
 * First build all `cmd` executables with `go build` in each subfolder

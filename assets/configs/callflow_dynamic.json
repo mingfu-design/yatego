@@ -1,0 +1,11 @@
+{
+    "components":[
+        {
+            "name": "start0",
+            "class": "fetcher",
+            "config": {
+                "url": "http://localhost:9000"
+            }
+        }
+    ]
+}

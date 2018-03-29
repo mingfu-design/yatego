@@ -2,6 +2,7 @@ package yatego
 
 // Controller main bot object
 type Controller struct {
+	componentYate
 	callManager          *CallManager
 	fallbackToController bool
 	singleChannelMode    bool
@@ -114,8 +115,8 @@ func (c *Controller) processIncomingCall(msg *Message) (*Call, bool) {
 	}
 	c.logger.Infof("New call added: %+v", call)
 	//install handlers
-	c.installMessageHandlers(call)
-	c.installMessageWatches(call)
+	c.InstallMessageHandlers(call)
+	c.InstallMessageWatches(call)
 
 	return call, true
 }
@@ -173,15 +174,13 @@ func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
 	case ResStop:
 		return !c.singleChannelMode
 	case ResTransfer:
-		next := call.Component(res.transferComponent)
-		if next == nil {
-			c.logger.Errorf("Transfer to component [%s] not found", res.transferComponent)
+		c.logger.Infof("Entering new active component [%s] in call [%s]", res.transferComponent, call.ChannelID)
+		if !call.ActivateComponent(res.transferComponent) {
+			c.logger.Errorf("Transfer to component [%s] failed", res.transferComponent)
 			return !c.singleChannelMode
 		}
-		call.ActiveComponentName = next.Name()
-		c.logger.Infof("Entering new active component [%s] in call [%s]", next.Name(), call.ChannelID)
-		next.Enter(call)
-		return true
+		//recursive enter the component
+		return c.prepareNextEvent(NewCallbackResult(ResEnter, ""), call)
 	case ResEnter:
 		com := c.activeComponent(call)
 		if com == nil {
@@ -189,52 +188,11 @@ func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
 			return false
 		}
 		c.logger.Infof("Entering component [%s] after callback in call [%s]", com.Name(), call.ChannelID)
-		if !com.Enter(call) {
-			c.logger.Infof("Component [%s] Enter callback not defined in call [%s]", com.Name(), call.ChannelID)
-		}
-		return true
+		enterRes := com.Enter(call)
+		//recursive prepare again
+		return c.prepareNextEvent(enterRes, call)
 	default:
 		return true
-	}
-}
-
-func (c *Controller) installMessageHandlers(call *Call) {
-	msgs := make(map[string]InstallDef)
-	coms := call.Components()
-	for _, com := range coms {
-		for msgName, msgDef := range com.MessagesToInstall() {
-			c.logger.Debugf("Analysing msf [%s]: %+v", msgName, msgDef)
-			if _, exists := msgs[msgName]; !exists {
-				msgs[msgName] = msgDef
-				continue
-			}
-			if msgs[msgName].Priority < msgDef.Priority {
-				continue
-			}
-			delete(msgs, msgName)
-			msgs[msgName] = msgDef
-		}
-	}
-	c.logger.Debugf("Going to install [%d] message handlers, from [%d] components", len(msgs), len(coms))
-	for msgName, msgDef := range msgs {
-		c.engine.InstallFiltered(msgName, msgDef.Priority, msgDef.FilterName, msgDef.FilterValue)
-	}
-}
-
-func (c *Controller) installMessageWatches(call *Call) {
-	msgs := make(map[string]bool)
-	coms := call.Components()
-	for _, com := range coms {
-		for _, msgName := range com.MessagesToWatch() {
-			if _, exists := msgs[msgName]; exists {
-				continue
-			}
-			msgs[msgName] = true
-		}
-	}
-	c.logger.Debugf("Going to install [%d] message watchers, from [%d] components", len(msgs), len(coms))
-	for msgName := range msgs {
-		c.engine.Watch(msgName)
 	}
 }
 

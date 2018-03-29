@@ -31,6 +31,13 @@ func MenuComponentFactory(c minidic.Container) ComponentFactory {
 	}
 }
 
+// FetcherComponentFactory is Fetcher component factory
+func FetcherComponentFactory(c minidic.Container) ComponentFactory {
+	return func(class string, name string, config map[string]interface{}) Component {
+		return NewFetcherComponent(baseComponent(c, name, config), c.Get("loader_json").(*CallflowLoaderJSON))
+	}
+}
+
 // baseComponent helper function get base object by value
 func baseComponent(c minidic.Container, name string, config map[string]interface{}) Base {
 	base := NewBaseComponent(name, c.Get("engine").(*Engine), c.Get("logger").(Logger), config)
