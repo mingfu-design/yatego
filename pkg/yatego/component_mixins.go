@@ -22,6 +22,18 @@ func (c *componentCommon) Config(key string) (interface{}, bool) {
 	return val, exists
 }
 
+func (c *componentCommon) ConfigKeys() []string {
+	keys := make([]string, 0, len(c.config))
+	for k := range c.config {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (c *componentCommon) SetConfig(key string, val interface{}) {
+	c.config[key] = val
+}
+
 func (c *componentCommon) ConfigAsString(key string) (string, bool) {
 	val, exists := c.Config(key)
 	if !exists {

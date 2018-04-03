@@ -43,6 +43,8 @@ type Component interface {
 	Listen(messageName string, callback Callback)
 	OnEnter(callback Callback)
 	Config(key string) (interface{}, bool)
+	SetConfig(key string, val interface{})
+	ConfigKeys() []string
 	Logger() Logger
 }
 

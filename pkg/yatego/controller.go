@@ -179,6 +179,8 @@ func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
 			c.logger.Errorf("Transfer to component [%s] failed", res.transferComponent)
 			return !c.singleChannelMode
 		}
+		//TODO: prepare dynamic config variables
+		//call.ParseConfig(call.ActiveComponent())
 		//recursive enter the component
 		return c.prepareNextEvent(NewCallbackResult(ResEnter, ""), call)
 	case ResEnter:

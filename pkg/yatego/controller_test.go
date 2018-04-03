@@ -17,6 +17,14 @@ func TestRun(t *testing.T) {
 	}
 
 	c := &Controller{
+		componentYate: componentYate{
+			componentCommon: componentCommon{
+				name:   "controller",
+				logger: e.Logger,
+				config: map[string]interface{}{},
+			},
+			engine: e,
+		},
 		callManager:          cm,
 		fallbackToController: false,
 		singleChannelMode:    true,
@@ -46,8 +54,8 @@ func TestRun(t *testing.T) {
 
 	patterns := []string{
 		"%%<message:.*:true:call.execute::.*targetid=yatego/.*",
-		"%%>message:.*:.*:call.answered::.*:targetid=sip/.*:id=yatego/.*",
-		"%%>message:.*:.*:chan.attach::.*source=tone/congestion:notify=yatego/.*:targetid=sip/.*:id=yatego/.*",
+		"%%>message:.*:.*:call.answered::.*:targetid=sip/.*",
+		"%%>message:.*:.*:chan.attach::.*source=tone/congestion",
 	}
 
 	for i := 0; i < len(patterns); i++ {

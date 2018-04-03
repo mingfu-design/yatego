@@ -1,6 +1,9 @@
 package yatego
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Call is object persisting all single call related info, including callflow components
 type Call struct {
@@ -39,6 +42,41 @@ func (call *Call) SetData(componentName string, key string, value interface{}) {
 		call.data[componentName] = make(map[string]interface{})
 	}
 	call.data[componentName][key] = value
+}
+
+// ParseConfig updates a component's config tpl variables {component.variable}
+// per stored call data values
+func (call *Call) ParseConfig(c Component) {
+	keys := c.ConfigKeys()
+	s := ""
+	//loop all config keys
+	for _, key := range keys {
+		v, exists := c.Config(key)
+		if !exists {
+			continue
+		}
+		//mind only string config vals
+		switch v.(type) {
+		default:
+			continue
+		case string:
+			s = v.(string)
+		}
+		//check pattern {component.variable}
+		if !strings.HasPrefix(s, "{") || !strings.HasSuffix(s, "}") {
+			continue
+		}
+		p := strings.Split(s[1:len(s)-1], ".")
+		if len(p) != 2 {
+			continue
+		}
+		dataVal, exists := call.Data(p[0], p[1])
+		if !exists {
+			c.SetConfig(key, "")
+			continue
+		}
+		c.SetConfig(key, dataVal)
+	}
 }
 
 // Components returns all components define
