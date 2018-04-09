@@ -54,7 +54,7 @@ func TestRun(t *testing.T) {
 
 	patterns := []string{
 		"%%<message:.*:true:call.execute::.*targetid=yatego/.*",
-		"%%>message:.*:.*:call.answered::.*:targetid=sip/.*",
+		"%%>message:.*:.*:call.answered::.*targetid=sip/.*",
 		"%%>message:.*:.*:chan.attach::.*source=tone/congestion",
 	}
 

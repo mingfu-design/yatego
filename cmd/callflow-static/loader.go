@@ -4,11 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rukavina/minidic"
+	"github.com/rukavina/dicgo"
 	"github.com/rukavina/yatego/pkg/yatego"
 )
 
-func loader(c minidic.Container) yatego.CallflowLoader {
+func loader(c dicgo.Container) yatego.CallflowLoader {
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)

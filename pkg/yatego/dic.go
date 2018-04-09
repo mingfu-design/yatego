@@ -4,80 +4,72 @@ import (
 	"io"
 	"os"
 
-	"github.com/rukavina/minidic"
+	"github.com/rukavina/dicgo"
 	"github.com/sirupsen/logrus"
 )
 
-func dic() minidic.Container {
-	c := minidic.NewContainer()
+func dic() dicgo.Container {
+	c := dicgo.NewContainer()
 
 	// classname => factory map
-	c.Add(minidic.NewInjection("component_factories", func(cont minidic.Container) map[string]ComponentFactory {
-		return map[string]ComponentFactory{
-			"base":     BaseComponentFactory(cont),
-			"player":   PlayerComponentFactory(cont),
-			"recorder": RecorderComponentFactory(cont),
-			"menu":     MenuComponentFactory(cont),
-			"fetcher":  FetcherComponentFactory(cont),
-		}
-	}))
+	c.SetValue("component_factories", map[string]ComponentFactory{
+		"base":     BaseComponentFactory(c),
+		"player":   PlayerComponentFactory(c),
+		"recorder": RecorderComponentFactory(c),
+		"menu":     MenuComponentFactory(c),
+		"fetcher":  FetcherComponentFactory(c),
+	})
 
-	c.Add(minidic.NewInjection("stderr", func(cont minidic.Container) io.Writer {
-		return os.Stderr
-	}))
+	c.SetValue("stderr", os.Stderr)
 
-	c.Add(minidic.NewInjection("stdout", func(cont minidic.Container) io.Writer {
-		return os.Stdout
-	}))
+	c.SetValue("stdout", os.Stdout)
 
-	c.Add(minidic.NewInjection("stdin", func(cont minidic.Container) io.Reader {
-		return os.Stdin
-	}))
+	c.SetValue("stdin", os.Stdin)
 
-	c.Add(minidic.NewInjection("logger", func(cont minidic.Container) Logger {
+	c.SetSingleton("logger", func(cont dicgo.Container) interface{} {
 		return &logrus.Logger{
-			Out:       cont.Get("stderr").(io.Writer),
+			Out:       cont.Service("stderr").(io.Writer),
 			Formatter: new(logrus.TextFormatter),
 			Hooks:     make(logrus.LevelHooks),
 			Level:     logrus.DebugLevel,
 		}
-	}))
+	})
 
-	c.Add(minidic.NewInjection("call_manager", func(cont minidic.Container) *CallManager {
+	c.SetSingleton("call_manager", func(cont dicgo.Container) interface{} {
 		return &CallManager{
 			calls: make(map[string]*Call),
 		}
-	}))
+	})
 
-	c.Add(minidic.NewInjection("engine", func(cont minidic.Container) *Engine {
+	c.SetSingleton("engine", func(cont dicgo.Container) interface{} {
 		return &Engine{
-			In:     cont.Get("stdin").(io.Reader),
-			Out:    cont.Get("stdout").(io.Writer),
-			Logger: cont.Get("logger").(Logger),
+			In:     cont.Service("stdin").(io.Reader),
+			Out:    cont.Service("stdout").(io.Writer),
+			Logger: cont.Service("logger").(Logger),
 		}
-	}))
+	})
 
-	c.Add(minidic.NewInjection("controller", func(cont minidic.Container) *Controller {
+	c.SetSingleton("controller", func(cont dicgo.Container) interface{} {
 		return &Controller{
 			componentYate: componentYate{
 				componentCommon: componentCommon{
 					name:   "controller",
-					logger: cont.Get("logger").(Logger),
+					logger: cont.Service("logger").(Logger),
 					config: map[string]interface{}{},
 				},
-				engine: cont.Get("engine").(*Engine),
+				engine: cont.Service("engine").(*Engine),
 			},
-			callManager:       cont.Get("call_manager").(*CallManager),
-			logger:            cont.Get("logger").(Logger),
-			engine:            cont.Get("engine").(*Engine),
+			callManager:       cont.Service("call_manager").(*CallManager),
+			logger:            cont.Service("logger").(Logger),
+			engine:            cont.Service("engine").(*Engine),
 			singleChannelMode: true,
 			staticComponents:  make([]Component, 0),
 		}
-	}))
+	})
 
-	c.Add(minidic.NewInjection("loader_json", func(cont minidic.Container) *CallflowLoaderJSON {
-		return NewCallflowLoaderJSON("", cont.Get("component_factories").(map[string]ComponentFactory))
-	}))
+	c.SetSingleton("loader_json", func(cont dicgo.Container) interface{} {
+		return NewCallflowLoaderJSON("", cont.Service("component_factories").(map[string]ComponentFactory))
+	})
 
 	return c
 }

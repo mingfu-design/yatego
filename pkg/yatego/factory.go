@@ -1,10 +1,12 @@
 package yatego
 
-import "github.com/rukavina/minidic"
+import (
+	"github.com/rukavina/dicgo"
+)
 
 // Factory returns factory object
 type Factory struct {
-	container minidic.Container
+	container dicgo.Container
 }
 
 // NewFactory factory constructor
@@ -15,7 +17,7 @@ func NewFactory() *Factory {
 }
 
 // Container returns DIC container
-func (f *Factory) Container() minidic.Container {
+func (f *Factory) Container() dicgo.Container {
 	if f.container == nil {
 		f.container = dic()
 	}
@@ -24,7 +26,7 @@ func (f *Factory) Container() minidic.Container {
 
 // Controller get controller service instance
 func (f *Factory) Controller(cl CallflowLoader) *Controller {
-	c := f.Container().Get("controller").(*Controller)
+	c := f.Container().Service("controller").(*Controller)
 	if cl != nil {
 		c.callflowLoader = cl
 	}
@@ -39,5 +41,5 @@ func (f *Factory) BaseComponent() Component {
 
 // CallflowLoaderJSON get json loader instance
 func (f *Factory) CallflowLoaderJSON() *CallflowLoaderJSON {
-	return f.Container().Get("loader_json").(*CallflowLoaderJSON)
+	return f.Container().Service("loader_json").(*CallflowLoaderJSON)
 }
