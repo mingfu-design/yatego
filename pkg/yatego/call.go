@@ -18,6 +18,18 @@ type Call struct {
 	components          []Component
 }
 
+// CallData returns global call data, like Caller, Called etc.
+func (call *Call) CallData() map[string]interface{} {
+	return map[string]interface{}{
+		"channelId":  call.ChannelID,
+		"peerId":     call.PeerID,
+		"caller":     call.Caller,
+		"callerName": call.CallerName,
+		"called":     call.Called,
+		"billingId":  call.BillingID,
+	}
+}
+
 // Data returns the component's data. If key is present, returns data subkey
 func (call *Call) Data(componentName string, key string) (interface{}, bool) {
 	var (
@@ -176,6 +188,8 @@ func (cm *CallManager) Add(
 	if _, exists := params["called"]; exists {
 		call.Called = params["called"]
 	}
+	//store call data in fake component key "call"
+	call.data["call"] = call.CallData()
 	cm.calls[call.ChannelID] = call
 	return call, nil
 }
