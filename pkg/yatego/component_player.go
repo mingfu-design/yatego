@@ -29,6 +29,8 @@ func (p *Player) Init() {
 	//on enter play song
 	p.OnEnter(func(call *Call, msg *Message) *CallbackResult {
 		p.logger.Debugf("Player [%s] on enter", p.Name())
+		//reset curr song
+		p.currSong = 0
 		return p.callbackResult(call)
 	})
 

@@ -2,7 +2,9 @@ package yatego
 
 import (
 	"io"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/rukavina/dicgo"
 	"github.com/sirupsen/logrus"
@@ -18,6 +20,9 @@ func dic() dicgo.Container {
 		"recorder": RecorderComponentFactory(c),
 		"menu":     MenuComponentFactory(c),
 		"fetcher":  FetcherComponentFactory(c),
+		"switch":   SwitchComponentFactory(c),
+		"http":     HTTPComponentFactory(c),
+		"loop":     LoopComponentFactory(c),
 	})
 
 	c.SetValue("stderr", os.Stderr)
@@ -32,6 +37,12 @@ func dic() dicgo.Container {
 			Formatter: new(logrus.TextFormatter),
 			Hooks:     make(logrus.LevelHooks),
 			Level:     logrus.DebugLevel,
+		}
+	})
+
+	c.SetSingleton("http_client", func(cont dicgo.Container) interface{} {
+		return &http.Client{
+			Timeout: time.Second * 10,
 		}
 	})
 

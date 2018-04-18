@@ -7,20 +7,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 // Fetcher component plays list of songs
 type Fetcher struct {
 	Base
-	cfLoader *CallflowLoaderJSON
+	cfLoader   *CallflowLoaderJSON
+	HTTPClient *http.Client
 }
 
 // NewFetcherComponent generates new Fetcher component
-func NewFetcherComponent(base Base, cfLoader *CallflowLoaderJSON) *Fetcher {
+func NewFetcherComponent(base Base, cfLoader *CallflowLoaderJSON, httpClient *http.Client) *Fetcher {
 	f := &Fetcher{
-		Base:     base,
-		cfLoader: cfLoader,
+		Base:       base,
+		cfLoader:   cfLoader,
+		HTTPClient: httpClient,
 	}
 	f.Init()
 	return f
@@ -74,7 +75,7 @@ func (f *Fetcher) fetchJSONResponse(call *Call, msg *Message) (string, error) {
 	reqParams := f.requestParams(call, msg)
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(reqParams)
-	resp, err := f.httpClient().PostForm(url, reqParams)
+	resp, err := f.HTTPClient.PostForm(url, reqParams)
 	if err != nil {
 		return "", err
 	}
@@ -87,12 +88,6 @@ func (f *Fetcher) fetchJSONResponse(call *Call, msg *Message) (string, error) {
 		return "", err
 	}
 	return string(body), nil
-}
-
-func (f *Fetcher) httpClient() *http.Client {
-	return &http.Client{
-		Timeout: time.Second * 10,
-	}
 }
 
 func (f *Fetcher) url() (string, error) {

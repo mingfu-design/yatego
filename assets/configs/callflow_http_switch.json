@@ -1,0 +1,88 @@
+{
+    "components":[
+        {
+            "name": "start",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/welcome.sln",
+                "transfer": "menu"
+            }
+        },
+        {
+            "name": "menu",
+            "class": "menu",
+            "config": {
+                "keys": "1,2",
+                "transfer": "slot,slot"
+            } 
+        },
+        {
+            "name": "slot",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/slot.sln",
+                "transfer": "http"
+            }
+        },
+        {
+            "name": "http",
+            "class": "http",
+            "config": {
+                "url": "http://localhost:9000/winner",                
+                "request_namespaces":"menu.key",
+                "request_fields":"pot",
+                "transfer":"switch"
+            }
+        },
+        {
+            "name": "switch",
+            "class": "switch",
+            "config": {
+                "keys": "http.result,http.result",
+                "values": "winner,looser",
+                "transfer": "winner,looser",
+                "transfer_default":"goodbye"
+            } 
+        },        
+        {
+            "name": "winner",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/winner.sln",
+                "transfer": "goodbye"
+            }
+        },         
+        {
+            "name": "looser",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/looser.sln",
+                "transfer": "loop"
+            }
+        },
+        {
+            "name": "loop",
+            "class": "loop",
+            "config": {
+                "max":"3",
+                "transfer": "new_round",
+                "transfer_default":"goodbye"
+            } 
+        },
+        {
+            "name": "new_round",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/round.sln",
+                "transfer": "menu"
+            }
+        },                
+        {
+            "name": "goodbye",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/goodbye.sln"
+            }
+        }                                       
+    ]
+}

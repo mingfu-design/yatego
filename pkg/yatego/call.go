@@ -35,6 +35,11 @@ func (call *Call) Data(componentName string, key string) (interface{}, bool) {
 	return data, exists
 }
 
+// DataAll returns all components' data
+func (call *Call) DataAll() map[string]map[string]interface{} {
+	return call.data
+}
+
 // SetData sets the component's data key value
 func (call *Call) SetData(componentName string, key string, value interface{}) {
 	_, exists := call.data[componentName]

@@ -6,4 +6,5 @@ cmd/callflow-json/callflow-json
 cmd/callflow-vars/callflow-vars
 cmd/callflow-dynamic/callflow-dynamic
 cmd/http-callback/http-callback
+cmd/callflow-http-switch/callflow-http-switch
 pkg/yatego/debug.test

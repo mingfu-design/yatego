@@ -1,6 +1,8 @@
 package yatego
 
 import (
+	"net/http"
+
 	"github.com/rukavina/dicgo"
 )
 
@@ -36,7 +38,35 @@ func MenuComponentFactory(c dicgo.Container) ComponentFactory {
 // FetcherComponentFactory is Fetcher component factory
 func FetcherComponentFactory(c dicgo.Container) ComponentFactory {
 	return func(class string, name string, config map[string]interface{}) Component {
-		return NewFetcherComponent(baseComponent(c, name, config), c.Service("loader_json").(*CallflowLoaderJSON))
+		return NewFetcherComponent(
+			baseComponent(c, name, config),
+			c.Service("loader_json").(*CallflowLoaderJSON),
+			c.Service("http_client").(*http.Client),
+		)
+	}
+}
+
+// SwitchComponentFactory is Switch component factory
+func SwitchComponentFactory(c dicgo.Container) ComponentFactory {
+	return func(class string, name string, config map[string]interface{}) Component {
+		return NewSwitchComponent(baseComponent(c, name, config))
+	}
+}
+
+// HTTPComponentFactory is Switch component factory
+func HTTPComponentFactory(c dicgo.Container) ComponentFactory {
+	return func(class string, name string, config map[string]interface{}) Component {
+		return NewHTTPComponent(
+			baseComponent(c, name, config),
+			c.Service("http_client").(*http.Client),
+		)
+	}
+}
+
+// LoopComponentFactory is Switch component factory
+func LoopComponentFactory(c dicgo.Container) ComponentFactory {
+	return func(class string, name string, config map[string]interface{}) Component {
+		return NewLoopComponent(baseComponent(c, name, config))
 	}
 }
 

@@ -2,6 +2,7 @@ package yatego
 
 import (
 	"strconv"
+	"strings"
 )
 
 type componentCommon struct {
@@ -82,6 +83,18 @@ func (c *componentCommon) CallData(call *Call, key string) (interface{}, bool) {
 
 func (c *componentCommon) SetCallData(call *Call, key string, value interface{}) {
 	call.SetData(c.name, key, value)
+}
+
+func (c *componentCommon) CallDataNamespace(call *Call, namespace string) string {
+	ns := strings.Split(namespace, ".")
+	if len(ns) != 2 {
+		return ""
+	}
+	data, ok := call.Data(ns[0], ns[1])
+	if !ok {
+		return ""
+	}
+	return data.(string)
 }
 
 type componentCallback struct {
