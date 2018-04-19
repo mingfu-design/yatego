@@ -66,6 +66,11 @@ func (m *Menu) Pressed(key string, call *Call) (string, bool) {
 		m.SetCallData(call, "key", key)
 		return transfers[i], true
 	}
-	m.logger.Warningf("Menu [%s] has no option defined for key [%s]", m.Name(), key)
-	return "", false
+	tr, exists := m.ConfigAsString("transfer_default")
+	if !exists {
+		m.logger.Warningf("Menu [%s] has no default transfer", m.Name())
+		return "", false
+	}
+	m.logger.Warningf("Menu [%s] has no option defined for key [%s], but transfer to default [%s]", m.Name(), key, tr)
+	return tr, true
 }

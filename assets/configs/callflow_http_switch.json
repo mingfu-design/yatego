@@ -4,7 +4,7 @@
             "name": "start",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/welcome.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/welcome.sln",
                 "transfer": "menu"
             }
         },
@@ -13,14 +13,23 @@
             "class": "menu",
             "config": {
                 "keys": "1,2",
-                "transfer": "slot,slot"
+                "transfer": "slot,slot",
+                "transfer_default":"invalid"
             } 
         },
+        {
+            "name": "invalid",
+            "class": "player",
+            "config": {
+                "playlist": "/vagrant/assets/audio/{call.called}/invalid.sln",
+                "transfer": "menu"
+            }
+        },        
         {
             "name": "slot",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/slot.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/slot.sln",
                 "transfer": "http"
             }
         },
@@ -48,7 +57,7 @@
             "name": "winner",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/winner.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/{http.result}.sln",
                 "transfer": "goodbye"
             }
         },         
@@ -56,7 +65,7 @@
             "name": "looser",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/looser.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/{http.result}.sln",
                 "transfer": "loop"
             }
         },
@@ -73,7 +82,7 @@
             "name": "new_round",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/round.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/round.sln",
                 "transfer": "menu"
             }
         },                
@@ -81,7 +90,7 @@
             "name": "goodbye",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/goodbye.sln"
+                "playlist": "/vagrant/assets/audio/{call.called}/goodbye.sln"
             }
         }                                       
     ]

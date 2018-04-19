@@ -2,6 +2,7 @@ package yatego
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -66,6 +67,7 @@ func (call *Call) SetData(componentName string, key string, value interface{}) {
 func (call *Call) ParseConfig(c Component) {
 	keys := c.ConfigKeys()
 	s := ""
+	rep := call.dataStrReplacer()
 	//loop all config keys
 	for _, key := range keys {
 		v, exists := c.Config(key)
@@ -79,21 +81,36 @@ func (call *Call) ParseConfig(c Component) {
 		case string:
 			s = v.(string)
 		}
-		//check pattern {component.variable}
-		if !strings.HasPrefix(s, "{") || !strings.HasSuffix(s, "}") {
-			continue
-		}
-		p := strings.Split(s[1:len(s)-1], ".")
-		if len(p) != 2 {
-			continue
-		}
-		dataVal, exists := call.Data(p[0], p[1])
-		if !exists {
-			c.SetConfig(key, "")
-			continue
-		}
-		c.SetConfig(key, dataVal)
+		s := rep.Replace(s)
+		c.SetConfig(key, s)
 	}
+}
+
+func (call *Call) dataStrReplacer() *strings.Replacer {
+	data := call.DataAll()
+	pairs := []string{}
+	curr := ""
+	for comp, vals := range data {
+		for key, val := range vals {
+			switch t := val.(type) {
+			default:
+				continue
+			case string:
+				curr = t
+			case bool:
+				curr = strconv.FormatBool(t)
+			case int:
+				curr = strconv.Itoa(t)
+			case uint64:
+				curr = strconv.FormatUint(t, 10)
+			case float64:
+				curr = strconv.FormatFloat(t, 'f', 6, 64)
+			}
+
+			pairs = append(pairs, "{"+comp+"."+key+"}", curr)
+		}
+	}
+	return strings.NewReplacer(pairs...)
 }
 
 // Components returns all components define
@@ -123,6 +140,9 @@ func (call *Call) ActivateComponent(newComponent string) bool {
 		return false
 	}
 	call.ActiveComponentName = next.Name()
+	//prepare dynamic config variables, eg. all config values in the form of
+	//{component.key} and replaced with actual values from call data
+	call.ParseConfig(call.ActiveComponent())
 	return true
 }
 

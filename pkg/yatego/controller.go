@@ -161,8 +161,16 @@ func (c *Controller) processEvent(msg *Message, call *Call) *CallbackResult {
 }
 
 func (c *Controller) activeComponent(call *Call) Component {
+	ac := call.ActiveComponent()
+	if ac != nil {
+		return ac
+	}
+	//no new component, activate first one
+	startCom := call.Component("")
+	c.logger.Debugf("No active component, going to activate first one [%s]", startCom.Name())
+	call.ActivateComponent(startCom.Name())
+	return call.ActiveComponent()
 	//TODO fallback to controller
-	return call.Component(call.ActiveComponentName)
 }
 
 func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
@@ -179,9 +187,6 @@ func (c *Controller) prepareNextEvent(res *CallbackResult, call *Call) bool {
 			c.logger.Errorf("Transfer to component [%s] failed", res.transferComponent)
 			return !c.singleChannelMode
 		}
-		//prepare dynamic config variables, eg. all config values in the form of
-		//{component.key} and replaced with actual values from call data
-		call.ParseConfig(call.ActiveComponent())
 		//recursive enter the component
 		return c.prepareNextEvent(NewCallbackResult(ResEnter, ""), call)
 	case ResEnter:
