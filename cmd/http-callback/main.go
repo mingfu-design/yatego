@@ -1,11 +1,17 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
+	portPtr := flag.Int("port", 9000, "port number")
+	flag.Parse()
+	port := strconv.Itoa(*portPtr)
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
@@ -21,9 +27,9 @@ func main() {
 
 	http.HandleFunc("/winner", handleWinner)
 
-	log.Println("HTTP server up and running on port 9000 and serving file [assets/configs/callflow_static.json]")
+	log.Printf("HTTP server up and running on port %s", port)
 
-	err := http.ListenAndServe(":9000", nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
