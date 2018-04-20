@@ -29,8 +29,11 @@ func (p *Player) Init() {
 	//on enter play song
 	p.OnEnter(func(call *Call, msg *Message) *CallbackResult {
 		p.logger.Debugf("Player [%s] on enter", p.Name())
-		//reset curr song
-		p.currSong = 0
+		playOnce := p.playOnePerEntry()
+		//reset curr song in normal mode, or loop if no more songs in "playOnce" mode
+		if !playOnce || (playOnce && p.currSong >= len(p.songs())) {
+			p.currSong = 0
+		}
 		return p.callbackResult(call)
 	})
 
@@ -59,7 +62,7 @@ func (p *Player) PlaySong(call *Call) bool {
 // callbackResult adapts plasong out to be returned as
 func (p *Player) callbackResult(call *Call) *CallbackResult {
 	played := p.PlaySong(call)
-	if !played {
+	if !played || p.playOnePerEntry() {
 		return p.TransferCallbackResult()
 	}
 	return NewCallbackResult(ResStay, "")
@@ -67,12 +70,7 @@ func (p *Player) callbackResult(call *Call) *CallbackResult {
 
 // nextSong get next song if exists
 func (p *Player) nextSong(call *Call) (string, bool) {
-	playlist, exists := p.Config("playlist")
-	if !exists {
-		p.logger.Warningf("Player [%s] has no playlist defined", p.Name())
-		return "", false
-	}
-	songs := strings.Split(playlist.(string), ",")
+	songs := p.songs()
 	if len(songs) == 0 {
 		p.logger.Warningf("Player [%s] playlist has no songs", p.Name())
 		return "", false
@@ -82,6 +80,22 @@ func (p *Player) nextSong(call *Call) (string, bool) {
 		return "", false
 	}
 	song := songs[p.currSong]
+
 	p.currSong++
+
 	return song, true
+}
+
+func (p *Player) songs() []string {
+	playlist, ok := p.ConfigAsString("playlist")
+	if !ok {
+		p.logger.Warningf("Player [%s] has no playlist defined", p.Name())
+		return []string{}
+	}
+	return strings.Split(playlist, ",")
+}
+
+func (p *Player) playOnePerEntry() bool {
+	play, ok := p.ConfigAsString("play_one_per_entry")
+	return ok && play == "true"
 }

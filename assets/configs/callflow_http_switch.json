@@ -7,7 +7,7 @@
                 "playlist": "/vagrant/assets/audio/{call.called}/welcome.sln",
                 "transfer": "menu"
             }
-        },
+        },        
         {
             "name": "menu",
             "class": "menu",
@@ -75,17 +75,19 @@
             "config": {
                 "max":"3",
                 "transfer": "new_round",
-                "transfer_default":"goodbye"
+                "transfer_default":"goodbye",
+                "break_on_equal":"true"
             } 
         },
         {
             "name": "new_round",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/round.sln",
-                "transfer": "menu"
+                "playlist": "/vagrant/assets/audio/{call.called}/round2.sln,/vagrant/assets/audio/{call.called}/round3.sln",
+                "transfer": "menu",
+                "play_one_per_entry": "true"
             }
-        },                
+        },                        
         {
             "name": "goodbye",
             "class": "player",

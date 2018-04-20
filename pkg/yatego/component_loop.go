@@ -50,8 +50,11 @@ func (l *Loop) Choice(call *Call) (string, bool) {
 
 	max := l.maxCounter(call)
 
+	eq, ok := l.ConfigAsString("break_on_equal")
+	breakOnEq := ok && eq == "true"
+
 	//exit the loop
-	if l.counter >= max {
+	if l.counter > max || (breakOnEq && l.counter == max) {
 		l.logger.Debugf("Loop [%s] counter [%d] reached max [%d]", l.Name(), l.counter, max)
 		return trDef, true
 	}
