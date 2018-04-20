@@ -1,6 +1,7 @@
 package yatego
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -25,6 +26,8 @@ func dic() dicgo.Container {
 		"loop":     LoopComponentFactory(c),
 	})
 
+	c.SetValue("config", map[string]string{})
+
 	c.SetValue("stderr", os.Stderr)
 
 	c.SetValue("stdout", os.Stdout)
@@ -32,12 +35,35 @@ func dic() dicgo.Container {
 	c.SetValue("stdin", os.Stdin)
 
 	c.SetSingleton("logger", func(cont dicgo.Container) interface{} {
-		return &logrus.Logger{
-			Out:       cont.Service("stderr").(io.Writer),
+		out := cont.Service("stderr").(io.Writer)
+		config := cont.Service("config").(map[string]string)
+		logFile, ok := config["log_file"]
+		var (
+			err     error
+			fileLog string
+		)
+		if ok && logFile != "" {
+			f, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+			if err == nil {
+				fileLog = fmt.Sprintf("Logging to file [%s]", f.Name())
+				out = io.MultiWriter(out, f)
+			}
+
+		}
+		logger := &logrus.Logger{
+			Out:       out,
 			Formatter: new(logrus.TextFormatter),
 			Hooks:     make(logrus.LevelHooks),
 			Level:     logrus.DebugLevel,
 		}
+		logger.Debugf("Config is %+v", config)
+		if err != nil {
+			logger.Errorf("Error openning log file: %s", err)
+		}
+		if fileLog != "" {
+			logger.Debugf(fileLog)
+		}
+		return logger
 	})
 
 	c.SetSingleton("http_client", func(cont dicgo.Container) interface{} {

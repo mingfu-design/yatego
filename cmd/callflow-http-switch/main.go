@@ -10,6 +10,10 @@ import (
 func main() {
 	f := yatego.NewFactory()
 
+	//set config
+	//config := f.Container().Service("config").(map[string]string)
+	//config["log_file"] = "./app.log"
+
 	//json loader
 	l := f.CallflowLoaderJSON()
 	//load json content from external file
