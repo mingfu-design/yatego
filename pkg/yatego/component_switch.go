@@ -35,10 +35,17 @@ func (s *Switch) Init() {
 
 //Choice transfers to next component based on setup
 func (s *Switch) Choice(call *Call) (string, bool) {
-	ks, exists := s.ConfigAsString("keys")
-	if !exists {
-		s.logger.Warningf("Switch [%s] has no keys defined", s.Name())
+	k, keyOk := s.ConfigAsString("compare_key")
+	v, valOk := s.ConfigAsString("compare_val")
+	if !keyOk && !valOk {
+		s.logger.Warningf("Switch [%s] has no compare key nor compare val defined", s.Name())
 		return "", false
+	}
+	cmp := ""
+	if keyOk {
+		cmp = s.CallDataNamespace(call, k)
+	} else {
+		cmp = v
 	}
 	ts, exists := s.ConfigAsString("transfer")
 	if !exists {
@@ -50,22 +57,21 @@ func (s *Switch) Choice(call *Call) (string, bool) {
 		s.logger.Warningf("Switch [%s] has no values defined", s.Name())
 		return "", false
 	}
-	keys := strings.Split(ks, ",")
+
 	transfers := strings.Split(ts, ",")
 	vals := strings.Split(vs, ",")
 
-	s.logger.Debugf("[%s] Making choice for keys %v, values %v against existing call data: %+v", s.Name(), keys, vals, call.DataAll())
-	for i, k := range keys {
-		if i >= len(vals) || i >= len(transfers) {
-			s.logger.Warningf("Switch [%s] has no transfer or value defined for key [%s]", s.Name(), k)
+	s.logger.Debugf("[%s] Making choice comparing value [%s], to values %v against existing call data: %+v", s.Name(), cmp, vals, call.DataAll())
+	for i, val := range vals {
+		if i >= len(transfers) {
+			s.logger.Warningf("Switch [%s] has no transfer for value [%s]", s.Name(), val)
 			break
 		}
-		if vals[i] != s.CallDataNamespace(call, k) {
+		if val != cmp {
 			continue
 		}
-		s.logger.Debugf("Switch [%s] found val [%s] on key [%s] which leads to transfer [%s]", s.Name(), vals[i], k, transfers[i])
-		s.SetCallData(call, "key", k)
-		s.SetCallData(call, "val", vals[i])
+		s.logger.Debugf("Switch [%s] found val [%s] which leads to transfer [%s]", s.Name(), val, transfers[i])
+		s.SetCallData(call, "val", val)
 		return transfers[i], true
 	}
 	tr, exists := s.ConfigAsString("transfer_default")

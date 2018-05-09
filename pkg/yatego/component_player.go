@@ -45,8 +45,22 @@ func (p *Player) Init() {
 			return NewCallbackResult(ResStay, "")
 		}
 
+		//if just one per entrance, do not play nothing more this time
+		if p.playOnePerEntry() {
+			return p.TransferCallbackResult()
+		}
+
 		return p.callbackResult(call)
 	})
+}
+
+// callbackResult adapts plasong out to be returned as
+func (p *Player) callbackResult(call *Call) *CallbackResult {
+	played := p.PlaySong(call)
+	if !played {
+		return p.TransferCallbackResult()
+	}
+	return NewCallbackResult(ResStay, "")
 }
 
 // PlaySong plays next song from the playlist or returns false
@@ -57,15 +71,6 @@ func (p *Player) PlaySong(call *Call) bool {
 	}
 	p.PlayWave(song, call, map[string]string{})
 	return true
-}
-
-// callbackResult adapts plasong out to be returned as
-func (p *Player) callbackResult(call *Call) *CallbackResult {
-	played := p.PlaySong(call)
-	if !played || p.playOnePerEntry() {
-		return p.TransferCallbackResult()
-	}
-	return NewCallbackResult(ResStay, "")
 }
 
 // nextSong get next song if exists

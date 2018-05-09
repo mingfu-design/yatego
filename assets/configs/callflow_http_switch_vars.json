@@ -1,0 +1,10 @@
+{
+    "welcome_prompt": "welcome.sln",
+    "invalid_prompt": "invalid.sln",
+    "slot_prompt": "slot.sln",
+    "goodbye_prompt": "goodbye.sln",
+    "menu_keys": "1,2",
+    "max_loop": "3",
+    "new_round_prompt": "/vagrant/assets/audio/{call.called}/round2.sln,/vagrant/assets/audio/{call.called}/round3.sln",
+    "has_menu": "true"
+}

@@ -4,16 +4,26 @@
             "name": "start",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/welcome.sln",
-                "transfer": "menu"
+                "playlist": "/vagrant/assets/audio/{call.called}/{welcome_prompt}",
+                "transfer": "has_menu"
             }
-        },        
+        },
+        {
+            "name": "has_menu",
+            "class": "switch",
+            "config": {
+                "compare_val": "{has_menu}",
+                "values": "true,false",
+                "transfer": "menu,slot",
+                "transfer_default":"menu"
+            } 
+        },                
         {
             "name": "menu",
             "class": "menu",
             "config": {
-                "keys": "1,2",
-                "transfer": "slot,slot",
+                "keys": "{menu_keys}",
+                "transfer": "slot,slot,slot,slot,slot,slot,slot,slot,slot,slot",
                 "transfer_default":"invalid"
             } 
         },
@@ -21,7 +31,7 @@
             "name": "invalid",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/invalid.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/{invalid_prompt}",
                 "transfer": "menu"
             }
         },        
@@ -29,7 +39,7 @@
             "name": "slot",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/slot.sln",
+                "playlist": "/vagrant/assets/audio/{call.called}/{slot_prompt}",
                 "transfer": "http"
             }
         },
@@ -47,7 +57,7 @@
             "name": "switch",
             "class": "switch",
             "config": {
-                "keys": "http.result,http.result",
+                "compare_key": "http.result",
                 "values": "winner,looser",
                 "transfer": "winner,looser",
                 "transfer_default":"goodbye"
@@ -73,7 +83,7 @@
             "name": "loop",
             "class": "loop",
             "config": {
-                "max":"3",
+                "max":"{max_loop}",
                 "transfer": "new_round",
                 "transfer_default":"goodbye",
                 "break_on_equal":"true"
@@ -83,8 +93,8 @@
             "name": "new_round",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/round2.sln,/vagrant/assets/audio/{call.called}/round3.sln",
-                "transfer": "menu",
+                "playlist": "{new_round_prompt}",
+                "transfer": "has_menu",
                 "play_one_per_entry": "true"
             }
         },                        
@@ -92,7 +102,7 @@
             "name": "goodbye",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/goodbye.sln"
+                "playlist": "/vagrant/assets/audio/{call.called}/{goodbye_prompt}"
             }
         }                                       
     ]
