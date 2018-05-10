@@ -1,5 +1,6 @@
 {
     "welcome_prompt": "welcome.sln",
+    "menu_prompt": "press.sln",
     "invalid_prompt": "invalid.sln",
     "slot_prompt": "slot.sln",
     "goodbye_prompt": "goodbye.sln",

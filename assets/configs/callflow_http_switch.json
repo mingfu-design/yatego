@@ -31,6 +31,7 @@
             "name": "menu",
             "class": "menu",
             "config": {
+                "prompt": "{prompts_dir}/{call.called}/{menu_prompt}",
                 "keys": "{menu_keys}",
                 "transfer": "slot,slot,slot,slot,slot,slot,slot,slot,slot,slot",
                 "transfer_default":"invalid"
