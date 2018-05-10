@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -15,22 +15,40 @@ func main() {
 
 	f := yatego.NewFactory()
 
-	//set config
-	config := f.Container().Service("config").(map[string]string)
-	config["log_file"] = "./app.log"
+	//load static config
+	config, err := LoadConfiguration(dir + "/config.json")
+	if err != nil {
+		log.Fatalf("Error loading config: %s", err)
+	}
+	//correct relating path
+	_, prs := config["log_file"]
+	if prs && string(config["log_file"][0]) != "/" {
+		config["log_file"] = dir + "/" + config["log_file"]
+	}
+	f.Container().SetValue("config", config)
 
-	//json loader
+	//json callflow loader
 	l := f.CallflowLoaderJSON()
-	//custom onload, pull vars from json
+	//callflow http vars loader
+
+	cfVars := &HTTPCFVarsLoader{
+		Config:     config,
+		Logger:     f.Container().Service("logger").(yatego.Logger),
+		HTTPClient: f.Container().Service("http_client").(*http.Client),
+	}
+	//custom onload, pull CF vars from json
 	l.OnLoad = func(loader *yatego.CallflowLoaderJSON, cf *yatego.Callflow, params map[string]string) error {
-		//load vars from json
-		data, err := ioutil.ReadFile(dir + "/assets/configs/callflow_http_switch_vars.json")
+		//load vars from http
+		vars, err := cfVars.LoadCallflowVars(params)
 		if err != nil {
 			return err
 		}
-		var vars map[string]string
-		if err := json.Unmarshal(data, &vars); err != nil {
-			return err
+		//append vars from config
+		for k, v := range config {
+			_, exists := vars[k]
+			if !exists {
+				vars[k] = v
+			}
 		}
 		loader.SetVars(vars)
 		return nil

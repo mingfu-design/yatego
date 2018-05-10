@@ -5,6 +5,6 @@
     "goodbye_prompt": "goodbye.sln",
     "menu_keys": "1,2",
     "max_loop": "3",
-    "new_round_prompt": "/vagrant/assets/audio/{call.called}/round2.sln,/vagrant/assets/audio/{call.called}/round3.sln",
+    "new_round_prompt": "{store.prompts_dir}/{call.called}/round2.sln,{store.prompts_dir}/{call.called}/round3.sln",
     "has_menu": "true"
 }

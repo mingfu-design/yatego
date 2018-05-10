@@ -24,6 +24,7 @@ func dic() dicgo.Container {
 		"switch":   SwitchComponentFactory(c),
 		"http":     HTTPComponentFactory(c),
 		"loop":     LoopComponentFactory(c),
+		"store":    StoreComponentFactory(c),
 	})
 
 	c.SetValue("config", map[string]string{})

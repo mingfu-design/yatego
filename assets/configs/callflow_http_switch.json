@@ -4,10 +4,19 @@
             "name": "start",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/{welcome_prompt}",
-                "transfer": "has_menu"
+                "playlist": "{prompts_dir}/{call.called}/{welcome_prompt}",
+                "transfer": "store"
             }
         },
+        {
+            "name": "store",
+            "class": "store",
+            "config": {
+                "keys": "prompts_dir",
+                "values": "{prompts_dir}",
+                "transfer": "has_menu"
+            }
+        },        
         {
             "name": "has_menu",
             "class": "switch",
@@ -31,7 +40,7 @@
             "name": "invalid",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/{invalid_prompt}",
+                "playlist": "{prompts_dir}/{call.called}/{invalid_prompt}",
                 "transfer": "menu"
             }
         },        
@@ -39,7 +48,7 @@
             "name": "slot",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/{slot_prompt}",
+                "playlist": "{prompts_dir}/{call.called}/{slot_prompt}",
                 "transfer": "http"
             }
         },
@@ -47,7 +56,7 @@
             "name": "http",
             "class": "http",
             "config": {
-                "url": "http://localhost:9000/winner",                
+                "url": "{engine_api_endpoint}",                
                 "request_namespaces":"menu.key",
                 "request_fields":"pot",
                 "transfer":"switch"
@@ -67,7 +76,7 @@
             "name": "winner",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/{http.result}.sln",
+                "playlist": "{prompts_dir}/{call.called}/{http.result}.sln",
                 "transfer": "goodbye"
             }
         },         
@@ -75,7 +84,7 @@
             "name": "looser",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/{http.result}.sln",
+                "playlist": "{prompts_dir}/{call.called}/{http.result}.sln",
                 "transfer": "loop"
             }
         },
@@ -102,7 +111,7 @@
             "name": "goodbye",
             "class": "player",
             "config": {
-                "playlist": "/vagrant/assets/audio/{call.called}/{goodbye_prompt}"
+                "playlist": "{prompts_dir}/{call.called}/{goodbye_prompt}"
             }
         }                                       
     ]

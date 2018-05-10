@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,6 +28,7 @@ func main() {
 	})
 
 	http.HandleFunc("/winner", handleWinner)
+	http.HandleFunc("/config", handleConfig)
 
 	log.Printf("HTTP server up and running on port %s", port)
 
@@ -57,4 +60,20 @@ func handleWinner(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, "assets/response/"+res+".json")
+}
+
+func handleConfig(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Config Error reading request body: %s", err)
+	}
+	defer r.Body.Close()
+	var req map[string]string
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		log.Printf("Config Error reading request body: %s", err)
+	} else {
+		log.Printf("Config HTTP request: %+v", req)
+	}
+	http.ServeFile(w, r, "assets/response/callflow_http_switch_vars.json")
 }
