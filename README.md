@@ -371,20 +371,11 @@ func main() {
 ## Running examples in vagrant
 
 * First build all `cmd` executables with `go build` in each subfolder
-* From project's root folder run `vagrant up`
+* From project's root folder run `./start_dev.sh`
 * connect sip softphone (eg. zoiper) to sip account `41587000201@172.28.128.3`, pass: `milan`
 * call example destinations: `920`, `921`, `922`, `923`, `924`, `925`
 
 NOTE: due to vagrant issues sometimes mock http srv is not started in `vagrant up`. To check and start do:
-
-```bash
-vagrant ssh
-sudo -i
-ps aux|grep http
-# if not started
-cd /vagrant/cmd/http-callback
-./http-callback &
-```
 
 ## Yate management
 
