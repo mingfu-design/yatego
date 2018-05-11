@@ -46,7 +46,7 @@ func (m *Menu) Init() {
 		if !ok {
 			return NewCallbackResult(ResStay, "")
 		}
-		m.logger.Warningf("Menu [%s] has prompt [%s] defined, playing it now", m.Name(), prompt)
+		m.logger.Infof("Menu [%s] has prompt [%s] defined, playing it now", m.Name(), prompt)
 		m.PlayWave(prompt, call, map[string]string{})
 		return NewCallbackResult(ResStay, "")
 	})

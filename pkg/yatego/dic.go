@@ -38,6 +38,7 @@ func dic() dicgo.Container {
 	c.SetSingleton("logger", func(cont dicgo.Container) interface{} {
 		out := cont.Service("stderr").(io.Writer)
 		config := cont.Service("config").(map[string]string)
+		//custom log file
 		logFile, ok := config["log_file"]
 		var (
 			err     error
@@ -51,11 +52,22 @@ func dic() dicgo.Container {
 			}
 
 		}
+		//custom log level
+		logLevel := logrus.DebugLevel
+		logLevelStr, ok := config["log_level"]
+		if ok && logLevelStr != "" {
+			lvl, err := logrus.ParseLevel(logLevelStr)
+			if err != nil {
+				logLevel = logrus.DebugLevel
+			} else {
+				logLevel = lvl
+			}
+		}
 		logger := &logrus.Logger{
 			Out:       out,
 			Formatter: new(logrus.TextFormatter),
 			Hooks:     make(logrus.LevelHooks),
-			Level:     logrus.DebugLevel,
+			Level:     logLevel,
 		}
 		logger.Debugf("Config is %+v", config)
 		if err != nil {

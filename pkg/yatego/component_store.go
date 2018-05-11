@@ -60,6 +60,6 @@ func (s *Store) Stores(call *Call) (string, bool) {
 		}
 		s.SetCallData(call, key, vals[i])
 	}
-	s.logger.Warningf("Store [%s] transfer default [%s]", s.Name(), tr)
+	s.logger.Debugf("Store [%s] transfer default [%s]", s.Name(), tr)
 	return tr, true
 }

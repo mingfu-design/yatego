@@ -1,5 +1,6 @@
 {
     "log_file": "log/app.log",
+    "log_level": "info",
     "engine_api_endpoint": "http://localhost:9000/winner",
     "config_api_endpoint": "http://localhost:9000/config",
     "prompts_dir": "/vagrant/assets/audio"
