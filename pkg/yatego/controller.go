@@ -108,7 +108,7 @@ func (c *Controller) processIncomingCall(msg *Message) (*Call, bool) {
 	if coms == nil || len(coms) == 0 {
 		c.logger.Fatal("No components loaded")
 	}
-	call, err := c.callManager.Add(coms, msg.Params, "", "")
+	call, err := c.callManager.Add(coms, msg.Params, "", "", c.logger)
 	if err != nil {
 		c.logger.Fatalf("Call not added: %s", err)
 		return nil, true

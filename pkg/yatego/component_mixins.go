@@ -6,9 +6,10 @@ import (
 )
 
 type componentCommon struct {
-	name   string
-	config map[string]interface{}
-	logger Logger
+	name      string
+	config    map[string]interface{}
+	configTpl map[string]interface{}
+	logger    Logger
 }
 
 func (c *componentCommon) Name() string {
@@ -20,6 +21,14 @@ func (c *componentCommon) Config(key string) (interface{}, bool) {
 		return c.config, true
 	}
 	val, exists := c.config[key]
+	return val, exists
+}
+
+func (c *componentCommon) ConfigTpl(key string) (interface{}, bool) {
+	if key == "" {
+		return c.configTpl, true
+	}
+	val, exists := c.configTpl[key]
 	return val, exists
 }
 

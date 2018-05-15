@@ -17,6 +17,7 @@ type Call struct {
 	ActiveComponentName string
 	data                map[string]map[string]interface{}
 	components          []Component
+	logger              Logger
 }
 
 // CallData returns global call data, like Caller, Called etc.
@@ -70,7 +71,7 @@ func (call *Call) ParseConfig(c Component) {
 	rep := call.dataStrReplacer()
 	//loop all config keys
 	for _, key := range keys {
-		v, exists := c.Config(key)
+		v, exists := c.ConfigTpl(key)
 		if !exists {
 			continue
 		}
@@ -81,6 +82,7 @@ func (call *Call) ParseConfig(c Component) {
 		case string:
 			s = v.(string)
 		}
+		call.logger.Debugf("Call parsing component [%s] config tpl [%s]", c.Name(), v)
 		s := rep.Replace(s)
 		c.SetConfig(key, s)
 	}
@@ -180,7 +182,9 @@ func (cm *CallManager) Add(
 	components []Component,
 	params map[string]string,
 	channelID string,
-	activeComponentName string) (*Call, error) {
+	activeComponentName string,
+	logger Logger,
+) (*Call, error) {
 	if channelID == "" {
 		channelID = "yatego/" + NewCallID()
 	}
@@ -192,6 +196,7 @@ func (cm *CallManager) Add(
 		ActiveComponentName: activeComponentName,
 		data:                make(map[string]map[string]interface{}),
 		components:          components,
+		logger:              logger,
 	}
 	if _, exists := params["id"]; exists {
 		call.PeerID = params["id"]

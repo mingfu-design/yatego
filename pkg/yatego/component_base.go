@@ -20,10 +20,16 @@ func (b *Base) Init() {
 
 // NewBaseComponent generates new base component
 func NewBaseComponent(name string, engine *Engine, logger Logger, config map[string]interface{}) *Base {
+	//we need to clone config to make tpl
+	configTpl := map[string]interface{}{}
+	for k, v := range config {
+		configTpl[k] = v
+	}
 	common := componentCommon{
-		name:   name,
-		logger: logger,
-		config: config,
+		name:      name,
+		logger:    logger,
+		config:    config,
+		configTpl: configTpl,
 	}
 	cb := componentCallback{
 		callbacks: make(map[string]Callback),

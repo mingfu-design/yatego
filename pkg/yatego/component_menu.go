@@ -70,12 +70,18 @@ func (m *Menu) Pressed(key string, call *Call) (string, bool) {
 		if k != key {
 			continue
 		}
-		if i >= len(transfers) {
-			m.logger.Warningf("Menu [%s] has no transfer defined for key [%s]", m.Name(), key)
-			return "", false
-		}
 		m.SetCallData(call, "key", key)
-		return transfers[i], true
+
+		if i < len(transfers) {
+			return transfers[i], true
+		}
+
+		if len(transfers) > 0 {
+			m.logger.Debugf("Menu [%s] has no enough transfers, using first [%s], for key [%s]", m.Name(), transfers[0], key)
+			return transfers[0], true
+		}
+		m.logger.Warningf("Menu [%s] has no transfer defined for key [%s]", m.Name(), key)
+		return "", false
 	}
 	tr, exists := m.ConfigAsString("transfer_default")
 	if !exists {

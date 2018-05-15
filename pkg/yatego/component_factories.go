@@ -77,6 +77,13 @@ func StoreComponentFactory(c dicgo.Container) ComponentFactory {
 	}
 }
 
+// StopComponentFactory is Store component factory
+func StopComponentFactory(c dicgo.Container) ComponentFactory {
+	return func(class string, name string, config map[string]interface{}) Component {
+		return NewStopComponent(baseComponent(c, name, config))
+	}
+}
+
 // baseComponent helper function get base object by value
 func baseComponent(c dicgo.Container, name string, config map[string]interface{}) Base {
 	base := NewBaseComponent(name, c.Service("engine").(*Engine), c.Service("logger").(Logger), config)

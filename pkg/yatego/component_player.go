@@ -76,6 +76,7 @@ func (p *Player) PlaySong(call *Call) bool {
 // nextSong get next song if exists
 func (p *Player) nextSong(call *Call) (string, bool) {
 	songs := p.songs()
+	p.logger.Debugf("Player [%s] has songs: %v", p.Name(), songs)
 	if len(songs) == 0 {
 		p.logger.Warningf("Player [%s] playlist has no songs", p.Name())
 		return "", false
