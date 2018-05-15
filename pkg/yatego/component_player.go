@@ -1,6 +1,7 @@
 package yatego
 
 import (
+	"os"
 	"strings"
 )
 
@@ -86,6 +87,11 @@ func (p *Player) nextSong(call *Call) (string, bool) {
 		return "", false
 	}
 	song := songs[p.currSong]
+
+	if _, err := os.Stat(song); os.IsNotExist(err) {
+		p.logger.Warningf("Player [%s] song [%s] does not exist", p.Name(), song)
+		return "", false
+	}
 
 	p.currSong++
 

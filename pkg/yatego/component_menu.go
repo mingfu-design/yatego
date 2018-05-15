@@ -1,6 +1,7 @@
 package yatego
 
 import (
+	"os"
 	"strings"
 )
 
@@ -44,6 +45,10 @@ func (m *Menu) Init() {
 	m.OnEnter(func(call *Call, msg *Message) *CallbackResult {
 		prompt, ok := m.ConfigAsString("prompt")
 		if !ok {
+			return NewCallbackResult(ResStay, "")
+		}
+		if _, err := os.Stat(prompt); os.IsNotExist(err) {
+			m.logger.Warnf("Menu [%s] prompt [%s] does not exist", m.Name(), prompt)
 			return NewCallbackResult(ResStay, "")
 		}
 		m.logger.Infof("Menu [%s] has prompt [%s] defined, playing it now", m.Name(), prompt)
