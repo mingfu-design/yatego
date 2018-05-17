@@ -8,3 +8,4 @@ cmd/callflow-dynamic/callflow-dynamic
 cmd/callflow-http-switch/callflow-http-switch
 pkg/yatego/debug.test
 tools/api-mock/api-mock
+tools/mermaid-gen/mermaid-gen

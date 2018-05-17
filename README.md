@@ -403,3 +403,16 @@ Start:
 ```sh
 /opt/yate/startyate.sh
 ```
+
+## Document/Visualize callflow
+
+Callflows in `json` formatten can be documented/visualized using https://mermaidjs.github.io/
+There's a special tool provided which can build `.mmd` mermaid syntax from .json callflow files.
+
+```bash
+cd tools/mermaid-gen
+go build
+./mermaid-gen --cf=../../assets/configs/callflow_static.json
+```
+
+this will output mmd content which can be pasted into https://mermaidjs.github.io/mermaid-live-editor to produce `svg` output
