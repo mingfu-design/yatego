@@ -14,6 +14,7 @@ type Call struct {
 	CallerName          string
 	Called              string
 	BillingID           string
+	Params              map[string]string
 	ActiveComponentName string
 	data                map[string]map[string]interface{}
 	components          []Component
@@ -22,7 +23,7 @@ type Call struct {
 
 // CallData returns global call data, like Caller, Called etc.
 func (call *Call) CallData() map[string]interface{} {
-	return map[string]interface{}{
+	data := map[string]interface{}{
 		"channelId":  call.ChannelID,
 		"peerId":     call.PeerID,
 		"caller":     call.Caller,
@@ -30,6 +31,11 @@ func (call *Call) CallData() map[string]interface{} {
 		"called":     call.Called,
 		"billingId":  call.BillingID,
 	}
+	//copy other params
+	for k, v := range call.Params {
+		data[k] = v
+	}
+	return data
 }
 
 // Data returns the component's data. If key is present, returns data subkey
@@ -195,6 +201,7 @@ func (cm *CallManager) Add(
 		ChannelID:           channelID,
 		ActiveComponentName: activeComponentName,
 		data:                make(map[string]map[string]interface{}),
+		Params:              make(map[string]string),
 		components:          components,
 		logger:              logger,
 	}
@@ -212,6 +219,10 @@ func (cm *CallManager) Add(
 	}
 	if _, exists := params["called"]; exists {
 		call.Called = params["called"]
+	}
+	//copy params
+	for k, v := range params {
+		call.Params[k] = v
 	}
 	//store call data in fake component key "call"
 	call.data["call"] = call.CallData()

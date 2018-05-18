@@ -81,7 +81,7 @@ func (c *Controller) getCall(msg *Message) (*Call, bool) {
 	if processed {
 		return call, true
 	}
-	chID := c.getCallChanneID(msg)
+	chID := c.getCallChannelID(msg)
 	if chID == "" {
 		c.logger.Debugf("Channel ID not defined in msg params %+v", msg.Params)
 		return nil, false
@@ -121,7 +121,7 @@ func (c *Controller) processIncomingCall(msg *Message) (*Call, bool) {
 	return call, true
 }
 
-func (c *Controller) getCallChanneID(msg *Message) string {
+func (c *Controller) getCallChannelID(msg *Message) string {
 	if msg.Type == TypeAnswer {
 		if id, exists := msg.Params["id"]; exists {
 			return id
