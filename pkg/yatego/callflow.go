@@ -47,8 +47,11 @@ type CallflowLoaderJSON struct {
 	CallflowVarsParser
 	data       []byte
 	factoryMap map[string]ComponentFactory
-	OnLoad     func(loader *CallflowLoaderJSON, cf *Callflow, params map[string]string) error
+	OnLoad     CallflowLoaderJSONOnLoad
 }
+
+//CallflowLoaderJSONOnLoad is hook called from CallflowLoaderJSON for custom loading
+type CallflowLoaderJSONOnLoad func(loader *CallflowLoaderJSON, cf *Callflow, params map[string]string) error
 
 // NewCallflowLoaderJSON generates new CallflowLoaderJSON
 func NewCallflowLoaderJSON(strJSON string, factoryMap map[string]ComponentFactory) *CallflowLoaderJSON {
