@@ -88,7 +88,7 @@ func (p *Player) nextSong(call *Call) (string, bool) {
 	}
 	song := songs[p.currSong]
 
-	if _, err := os.Stat(song); os.IsNotExist(err) {
+	if fi, err := os.Stat(song); !fi.Mode().IsRegular() || os.IsNotExist(err) {
 		p.logger.Warningf("Player [%s] song [%s] does not exist", p.Name(), song)
 		return "", false
 	}
