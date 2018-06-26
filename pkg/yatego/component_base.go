@@ -10,7 +10,6 @@ type Base struct {
 
 // Init pseudo 2nd step constructor
 func (b *Base) Init() {
-	b.logger.Debugf("Base [%s] init", b.Name())
 	b.Listen(MsgCallExecute, func(call *Call, msg *Message) *CallbackResult {
 		b.logger.Infof("Component [%s] going to answer the call from [%s] to [%s]", b.name, call.Caller, call.Called)
 		b.Answer(call, msg)

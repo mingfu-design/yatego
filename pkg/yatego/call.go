@@ -88,10 +88,11 @@ func (call *Call) ParseConfig(c Component) {
 		case string:
 			s = v.(string)
 		}
-		call.logger.Debugf("Call parsing component [%s] config tpl [%s]", c.Name(), v)
 		s := rep.Replace(s)
 		c.SetConfig(key, s)
 	}
+	newConf, _ := c.Config("")
+	call.logger.Debugf("Component [%s] config tpl parsed [%+v]", c.Name(), newConf)
 }
 
 func (call *Call) dataStrReplacer() *strings.Replacer {

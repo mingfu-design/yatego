@@ -213,9 +213,9 @@ func (c *Controller) loadComponents(params map[string]string) []Component {
 		c.logger.Fatalf("Error loading callflow: %s", err)
 	}
 	coms := make([]Component, 0)
+	c.logger.Debug("Building components:", cf.Components)
 	//build components
 	for _, com := range cf.Components {
-		c.logger.Debugf("Building component: %+v", com)
 		coms = append(coms, com.Factory(com.ClassName, com.Name, com.Config))
 	}
 	return coms
