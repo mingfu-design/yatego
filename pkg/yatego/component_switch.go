@@ -61,7 +61,7 @@ func (s *Switch) Choice(call *Call) (string, bool) {
 	transfers := strings.Split(ts, ",")
 	vals := strings.Split(vs, ",")
 
-	s.logger.Debugf("[%s] Making choice comparing value [%s], to values %v against existing call data: %+v", s.Name(), cmp, vals, call.DataAll())
+	s.logger.Debugf("[%s] Making choice comparing value [%s], to values %v against", s.Name(), cmp, vals)
 	for i, val := range vals {
 		if i >= len(transfers) {
 			s.logger.Warningf("Switch [%s] has no transfer for value [%s]", s.Name(), val)
