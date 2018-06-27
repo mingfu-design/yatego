@@ -55,14 +55,12 @@ func (c *Controller) Run(name string) {
 			continue
 		}
 		if call == nil {
-			c.logger.Debug("Call not for us, ignoring")
+			c.logger.Debug("Call not for us, ignoring, probably Channel ID not defined in msg params")
 			continue
 		}
 		res := c.processEvent(msg, call)
-		c.logger.Debugf("event process result: %v", res)
 		//we need to ack all incoming messages
 		if msg.Type == TypeIncoming {
-			c.logger.Debugf("ACK incoming event: %s", msg.Name)
 			c.engine.Acknowledge(msg)
 		}
 		if !c.prepareNextEvent(res, call) {
@@ -83,7 +81,6 @@ func (c *Controller) getCall(msg *Message) (*Call, bool) {
 	}
 	chID := c.getCallChannelID(msg)
 	if chID == "" {
-		c.logger.Debugf("Channel ID not defined in msg params %+v", msg.Params)
 		return nil, false
 	}
 	call, exists := c.callManager.Call(chID)
@@ -213,7 +210,7 @@ func (c *Controller) loadComponents(params map[string]string) []Component {
 		c.logger.Fatalf("Error loading callflow: %s", err)
 	}
 	coms := make([]Component, 0)
-	c.logger.Debug("Building components:", cf.Components)
+	c.logger.Debugf("Building %d components", len(cf.Components))
 	//build components
 	for _, com := range cf.Components {
 		coms = append(coms, com.Factory(com.ClassName, com.Name, com.Config))

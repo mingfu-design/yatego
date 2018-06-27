@@ -178,7 +178,6 @@ func (c *componentYate) InstallMessageHandlers(call *Call) {
 	coms := call.Components()
 	for _, com := range coms {
 		for msgName, msgDef := range com.MessagesToInstall() {
-			c.logger.Debugf("Analysing msf [%s]: %+v", msgName, msgDef)
 			if _, exists := msgs[msgName]; !exists {
 				msgs[msgName] = msgDef
 				continue
@@ -190,7 +189,7 @@ func (c *componentYate) InstallMessageHandlers(call *Call) {
 			msgs[msgName] = msgDef
 		}
 	}
-	c.logger.Debugf("Going to install [%d] message handlers, from [%d] components", len(msgs), len(coms))
+	c.logger.Debugf("Going to install [%+v] message handlers, from [%d] components", msgs, len(coms))
 	for msgName, msgDef := range msgs {
 		c.engine.InstallFiltered(msgName, msgDef.Priority, msgDef.FilterName, msgDef.FilterValue)
 	}
