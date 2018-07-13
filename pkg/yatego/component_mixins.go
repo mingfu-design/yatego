@@ -140,6 +140,10 @@ type componentYate struct {
 	messagesToInstall map[string]InstallDef
 }
 
+func (c *componentYate) Engine() *Engine {
+	return c.engine
+}
+
 func (c *componentYate) SendMessage(msgName string, call *Call, params map[string]string, targetID string) (*Message, error) {
 	if targetID == "" {
 		targetID = call.PeerID
@@ -163,6 +167,19 @@ func (c *componentYate) Answer(call *Call, msg *Message) (*Message, error) {
 		return msg, err
 	}
 	return c.SendMessage(MsgCallAnswered, call, map[string]string{"cdrcreate": "no"}, "")
+}
+
+//CallProgress makes early media rining/progressing
+func (c *componentYate) CallProgress(call *Call, msg *Message) error {
+	msg.Params["targetid"] = call.ChannelID
+	msg.Processed = true
+
+	_, err := c.Engine().Acknowledge(msg)
+	if err != nil {
+		return err
+	}
+	c.SendMessage(MsgCallProgress, call, map[string]string{"earlymedia": "true"}, "")
+	return nil
 }
 
 func (c *componentYate) MessagesToWatch() []string {
