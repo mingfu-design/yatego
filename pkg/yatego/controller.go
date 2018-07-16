@@ -52,10 +52,12 @@ func (c *Controller) Run(name string) {
 			if c.singleChannelMode {
 				break
 			}
+			c.engine.Acknowledge(msg)
 			continue
 		}
 		if call == nil {
 			c.logger.Debug("Call not for us, ignoring, probably Channel ID not defined in msg params")
+			c.engine.Acknowledge(msg)
 			continue
 		}
 		res := c.processEvent(msg, call)
