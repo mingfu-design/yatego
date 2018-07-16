@@ -86,7 +86,7 @@ func (c *Controller) getCall(msg *Message) (*Call, bool) {
 	call, exists := c.callManager.Call(chID)
 	if !exists {
 		c.logger.Errorf("Call for channel ID [%s] not found", chID)
-		return nil, true
+		return nil, false
 	}
 	return call, true
 }
