@@ -31,7 +31,11 @@ func (r *Recorder) Init() {
 	r.logger.Debugf("Recorder [%s] init", r.Name())
 	r.status = stPrompt
 	//install chan.notify to get prompt eof
-	r.messagesToInstall[MsgChanNotify] = InstallDef{Priority: 100}
+	r.messagesToInstall[MsgChanNotify] = InstallDef{
+		Priority:    100,
+		FilterName:  "targetid",
+		FilterValue: "{channelID}",
+	}
 
 	//on enter play song
 	r.OnEnter(func(call *Call, msg *Message) *CallbackResult {

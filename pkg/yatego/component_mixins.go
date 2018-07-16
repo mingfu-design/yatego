@@ -208,7 +208,12 @@ func (c *componentYate) InstallMessageHandlers(call *Call) {
 	}
 	c.logger.Debugf("Going to install [%+v] message handlers, from [%d] components", msgs, len(coms))
 	for msgName, msgDef := range msgs {
-		c.engine.InstallFiltered(msgName, msgDef.Priority, msgDef.FilterName, msgDef.FilterValue)
+		filtValue := msgDef.FilterValue
+		//replace template variable
+		if filtValue == "{channelID}" {
+			filtValue = call.ChannelID
+		}
+		c.engine.InstallFiltered(msgName, msgDef.Priority, msgDef.FilterName, filtValue)
 	}
 }
 

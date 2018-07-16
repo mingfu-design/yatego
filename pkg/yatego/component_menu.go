@@ -23,7 +23,11 @@ func NewMenuComponent(base Base) *Menu {
 func (m *Menu) Init() {
 	m.logger.Debugf("Menu [%s] init", m.Name())
 	//install chan.dtml to listen clicks
-	m.messagesToInstall[MsgChanDtmf] = InstallDef{Priority: 100}
+	m.messagesToInstall[MsgChanDtmf] = InstallDef{
+		Priority:    100,
+		FilterName:  "targetid",
+		FilterValue: "{channelID}",
+	}
 
 	//on chan.dtmf
 	m.Listen(MsgChanDtmf, func(call *Call, msg *Message) *CallbackResult {

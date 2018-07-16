@@ -25,7 +25,11 @@ func NewPlayerComponent(base Base) *Player {
 func (p *Player) Init() {
 	p.logger.Debugf("Player [%s] init", p.Name())
 	//install chan.notify to get prompt eof
-	p.messagesToInstall[MsgChanNotify] = InstallDef{Priority: 100}
+	p.messagesToInstall[MsgChanNotify] = InstallDef{
+		Priority:    100,
+		FilterName:  "targetid",
+		FilterValue: "{channelID}",
+	}
 
 	//on enter play song
 	p.OnEnter(func(call *Call, msg *Message) *CallbackResult {
