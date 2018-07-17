@@ -267,3 +267,7 @@ func bool2str(b bool) string {
 	}
 	return "false"
 }
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
