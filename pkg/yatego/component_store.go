@@ -40,12 +40,12 @@ func (s *Store) Stores(call *Call) (string, bool) {
 		s.logger.Warningf("Store [%s] has no transfers defined", s.Name())
 		return "", false
 	}
-	ks, exists := s.ConfigAsString("keys")
+	ks, exists := s.ConfigAsString("to_keys")
 	if !exists {
 		s.logger.Warningf("Store [%s] has no keys defined", s.Name())
 		return "", false
 	}
-	vs, exists := s.ConfigAsString("values")
+	vs, exists := s.ConfigAsString("from_values")
 	if !exists {
 		s.logger.Warningf("Store [%s] has no values defined", s.Name())
 		return "", false
@@ -58,8 +58,23 @@ func (s *Store) Stores(call *Call) (string, bool) {
 			s.logger.Warningf("Store [%s] has no val defined for key [%s]", s.Name(), key)
 			break
 		}
-		s.SetCallData(call, key, vals[i])
+		s.storeKeyValue(call, key, vals[i])
 	}
 	s.logger.Debugf("Store [%s] transfer default [%s]", s.Name(), tr)
 	return tr, true
+}
+
+func (s *Store) storeKeyValue(call *Call, key string, val string) {
+	keyNs := strings.Split(key, ".")
+	//save under component's key
+	if len(keyNs) == 1 {
+		s.SetCallData(call, key, val)
+		return
+	}
+	if len(keyNs) == 2 {
+		call.SetData(keyNs[0], keyNs[1], val)
+		return
+	}
+	s.logger.Errorf("Store [%s] cannot save invalid key defined [%s]", s.Name(), key)
+	return
 }
