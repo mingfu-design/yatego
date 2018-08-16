@@ -1,6 +1,8 @@
 package yatego
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -107,5 +109,11 @@ func (r *Recorder) recordFilePath(call *Call) string {
 		"{billingId}", call.BillingID,
 		"{time}", time.Now().Format("2006-01-02T15:04:05Z"),
 	)
-	return rp.Replace(f.(string))
+	fp := rp.Replace(f.(string))
+	dir := filepath.Dir(fp)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.Mkdir(dir, 0750)
+	}
+
+	return fp
 }
