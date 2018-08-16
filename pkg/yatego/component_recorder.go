@@ -109,6 +109,7 @@ func (r *Recorder) recordFilePath(call *Call) string {
 		"{billingId}", call.BillingID,
 		"{time}", time.Now().Format("2006-01-02T15:04:05Z"),
 	)
+	//create file dir if does not exist
 	fp := rp.Replace(f.(string))
 	dir := filepath.Dir(fp)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
