@@ -8,14 +8,16 @@ import (
 )
 
 const (
-	stPrompt = "prompt"
-	stRecord = "rec"
+	stPrompt    = "prompt"
+	stRecord    = "rec"
+	recFilePerm = 0755
 )
 
 // Recorder component records voice mail
 type Recorder struct {
 	Base
-	status string
+	status       string
+	recordedFile string
 }
 
 // NewRecorderComponent generates new Recorder component
@@ -38,6 +40,12 @@ func (r *Recorder) Init() {
 		FilterName:  "targetid",
 		FilterValue: "{channelID}",
 	}
+	//install chan.disconnect to fix file if disconnected
+	/*r.messagesToInstall[MsgChanDisconnected] = InstallDef{
+		Priority:    100,
+		FilterName:  "targetid",
+		FilterValue: "{channelID}",
+	}*/
 
 	//on enter play song
 	r.OnEnter(func(call *Call, msg *Message) *CallbackResult {
@@ -49,6 +57,7 @@ func (r *Recorder) Init() {
 
 	//on chan.notify if recorder go transfer, if played start recoding nad stay
 	r.Listen(MsgChanNotify, func(call *Call, msg *Message) *CallbackResult {
+		r.logger.Debugf("Chan Notify event received with reason: [%s], in recorder status: [%s]", msg.Params["reason"], r.status)
 		msg.Processed = true
 		switch r.status {
 		case stRecord:
@@ -56,6 +65,9 @@ func (r *Recorder) Init() {
 				r.logger.Debugf("Notify reason is not [maxlen], but [%s] so still waiting...", msg.Params["reason"])
 				return NewCallbackResult(ResStay, "")
 			}
+			//fix file permissions
+			//r.fixRecFilePerm(call)
+
 			r.logger.Debugf("Recording done in [%s]", r.Name())
 			return r.TransferCallbackResult()
 		default:
@@ -63,6 +75,13 @@ func (r *Recorder) Init() {
 			r.RecordFile(call)
 		}
 
+		return NewCallbackResult(ResStay, "")
+	})
+
+	//on chan.disonnected, fix rec. file
+	r.Listen(MsgChanNotify, func(call *Call, msg *Message) *CallbackResult {
+		msg.Processed = true
+		r.fixRecFilePerm(call)
 		return NewCallbackResult(ResStay, "")
 	})
 }
@@ -93,6 +112,7 @@ func (r *Recorder) RecordFile(call *Call) bool {
 	r.status = stRecord
 	r.SetCallData(call, "recorded", f)
 	r.Record(f, maxlen, call, map[string]string{})
+	r.recordedFile = f
 	return true
 }
 
@@ -113,8 +133,23 @@ func (r *Recorder) recordFilePath(call *Call) string {
 	fp := rp.Replace(f.(string))
 	dir := filepath.Dir(fp)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.Mkdir(dir, 0750)
+		os.Mkdir(dir, recFilePerm)
 	}
 
 	return fp
+}
+
+// parse config file path
+func (r *Recorder) fixRecFilePerm(call *Call) {
+	if r.recordedFile == "" {
+		return
+	}
+	if _, err := os.Stat(r.recordedFile); os.IsNotExist(err) {
+		return
+	}
+	err := os.Chmod(r.recordedFile, recFilePerm)
+	if err != nil {
+		r.logger.Errorf("Error chmod of file [%s]: [%v]", r.recordedFile, err)
+	}
+	return
 }
