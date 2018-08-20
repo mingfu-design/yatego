@@ -40,12 +40,6 @@ func (r *Recorder) Init() {
 		FilterName:  "targetid",
 		FilterValue: "{channelID}",
 	}
-	//install chan.disconnect to fix file if disconnected
-	/*r.messagesToInstall[MsgChanDisconnected] = InstallDef{
-		Priority:    100,
-		FilterName:  "targetid",
-		FilterValue: "{channelID}",
-	}*/
 
 	//on enter play song
 	r.OnEnter(func(call *Call, msg *Message) *CallbackResult {
@@ -65,8 +59,6 @@ func (r *Recorder) Init() {
 				r.logger.Debugf("Notify reason is not [maxlen], but [%s] so still waiting...", msg.Params["reason"])
 				return NewCallbackResult(ResStay, "")
 			}
-			//fix file permissions
-			//r.fixRecFilePerm(call)
 
 			r.logger.Debugf("Recording done in [%s]", r.Name())
 			return r.TransferCallbackResult()
@@ -75,13 +67,6 @@ func (r *Recorder) Init() {
 			r.RecordFile(call)
 		}
 
-		return NewCallbackResult(ResStay, "")
-	})
-
-	//on chan.disonnected, fix rec. file
-	r.Listen(MsgChanNotify, func(call *Call, msg *Message) *CallbackResult {
-		msg.Processed = true
-		r.fixRecFilePerm(call)
 		return NewCallbackResult(ResStay, "")
 	})
 }
@@ -113,6 +98,12 @@ func (r *Recorder) RecordFile(call *Call) bool {
 	r.SetCallData(call, "recorded", f)
 	r.Record(f, maxlen, call, map[string]string{})
 	r.recordedFile = f
+	//fix file permissions after 1s
+	go func() {
+		time.Sleep(1 * time.Second)
+		r.fixRecFilePerm(call)
+	}()
+
 	return true
 }
 
